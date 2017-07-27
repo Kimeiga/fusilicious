@@ -1,0 +1,38 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio for Mac
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "nakrobat.Plugins", "nakrobat.Plugins.csproj", "{2FEC35C6-B2DF-27A6-F12D-DFD180B36EA8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "nakrobat", "nakrobat.csproj", "{1527498A-92CE-3689-850B-9598A5A7CFD8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "nakrobat.Editor.Plugins", "nakrobat.Editor.Plugins.csproj", "{2DD93203-B894-9542-9E79-3369165CD65D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "nakrobat.Editor", "nakrobat.Editor.csproj", "{3F9A6ED9-4134-143F-E397-E93C988A617C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2FEC35C6-B2DF-27A6-F12D-DFD180B36EA8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2FEC35C6-B2DF-27A6-F12D-DFD180B36EA8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2FEC35C6-B2DF-27A6-F12D-DFD180B36EA8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2FEC35C6-B2DF-27A6-F12D-DFD180B36EA8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1527498A-92CE-3689-850B-9598A5A7CFD8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1527498A-92CE-3689-850B-9598A5A7CFD8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1527498A-92CE-3689-850B-9598A5A7CFD8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1527498A-92CE-3689-850B-9598A5A7CFD8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2DD93203-B894-9542-9E79-3369165CD65D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2DD93203-B894-9542-9E79-3369165CD65D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2DD93203-B894-9542-9E79-3369165CD65D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2DD93203-B894-9542-9E79-3369165CD65D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3F9A6ED9-4134-143F-E397-E93C988A617C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3F9A6ED9-4134-143F-E397-E93C988A617C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3F9A6ED9-4134-143F-E397-E93C988A617C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3F9A6ED9-4134-143F-E397-E93C988A617C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
