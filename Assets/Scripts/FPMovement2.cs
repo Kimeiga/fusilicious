@@ -1,7 +1,9 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class FPMovement2 : MonoBehaviour {
+
 
 	[Header("Base Variables")]
 	public CharacterController characterController;
@@ -408,15 +410,17 @@ public class FPMovement2 : MonoBehaviour {
 
 
 
+
         //Lerp the controller height to the target height
 
         if(Mathf.Abs(characterController.height - targetHeight) > 0.0001f){
             
             characterController.height = Mathf.Lerp(characterController.height, targetHeight, crouchingSpeed * crouchingSpeedMod);
         }
-		
 
-		
+
+
+
 
 		//Change Y Value of Transform with change in controller height
 		float changeInHeightHalfed = (characterController.height - previousHeight) * 0.5f; //these two variables will be used for the next three sections
@@ -474,6 +478,7 @@ public class FPMovement2 : MonoBehaviour {
 			dontBounce = false;
 
 		}
+
 	}
 
 	void OnTriggerStay(Collider other)
@@ -489,9 +494,6 @@ public class FPMovement2 : MonoBehaviour {
 			}
 		}
 	}
-
-	
-
 
 
 

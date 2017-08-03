@@ -67,6 +67,7 @@ public class Inventory : MonoBehaviour
     private int[] sundrySlots;
 
 
+
     public GameObject[] inventory;
     private int maxInventorySize;
 
@@ -151,70 +152,262 @@ public class Inventory : MonoBehaviour
 					currentItemNext = hit.transform.gameObject;
 					currentItemNextScript = currentItemNext.GetComponent<Item>();
 
-					//is the object a gun?
-					if (currentItemNextScript.type == ItemType.Gun)
-					{
 
-						//are we in a gun/sundry slot?
-						if (inventorySlots[inventoryIndex] == ItemType.Gun || inventorySlots[inventoryIndex] == ItemType.Sundry)
-						{
-							//you are on a gun slot or sundry slot
 
-                            //do we have a current item
-							if (inventory[inventoryIndex] == null)
+
+                    //got yer hands out
+                    if (inventory[inventoryIndex] == null)
+                    {
+
+                        //you're in the right slot for your gun
+                        if ((currentItemNextScript.type == ItemType.Melee) && (inventorySlots[inventoryIndex] == ItemType.Melee || inventorySlots[inventoryIndex] == ItemType.Sundry) ||
+                           (currentItemNextScript.type == ItemType.Gun) && (inventorySlots[inventoryIndex] == ItemType.Gun || inventorySlots[inventoryIndex] == ItemType.Sundry) ||
+                           (currentItemNextScript.type == ItemType.Gadget) && (inventorySlots[inventoryIndex] == ItemType.Gadget || inventorySlots[inventoryIndex] == ItemType.Sundry) ||
+                           (currentItemNextScript.type == ItemType.Sundry) && (inventorySlots[inventoryIndex] == ItemType.Sundry))
+                        {
+
+							//before you just grab the fucker, you should make sure that you are in the most convenient slot for the user
+							//the dedicated item slots should fill up before the sundry slots (if possible) and all slot groups should fill up in numerical order
+
+							//declare workvar for free slot index
+							int freeIndex = -1;
+
+							switch (currentItemNextScript.type)
 							{
-								//you have no item in this slot so just grab the fucker
-                                StartCoroutine(GrabItem(hit.transform.gameObject));
+								case ItemType.Melee:
+									//iterate through meleeslots first
+									foreach (int index in meleeSlots)
+									{
+										if (inventory[index] == null)
+										{
+											freeIndex = index;
+											break;
+										}
+									}
+
+									//if it's still null, iterate though sundry slots
+									if (freeIndex == -1)
+									{
+										foreach (int index in sundrySlots)
+										{
+											if (inventory[index] == null)
+											{
+												freeIndex = index;
+												break;
+											}
+										}
+									}
+									break;
+								case ItemType.Gun:
+									//iterate through gunslots first
+									foreach (int index in gunSlots)
+									{
+										if (inventory[index] == null)
+										{
+											freeIndex = index;
+											break;
+										}
+									}
+
+									//if it's still null, iterate though sundry slots
+									if (freeIndex == -1)
+									{
+										foreach (int index in sundrySlots)
+										{
+											if (inventory[index] == null)
+											{
+												freeIndex = index;
+												break;
+											}
+										}
+									}
+									break;
+								case ItemType.Gadget:
+									//iterate through gadgetslots first
+									foreach (int index in gadgetSlots)
+									{
+										if (inventory[index] == null)
+										{
+											freeIndex = index;
+											break;
+										}
+									}
+
+									//if it's still null, iterate though sundry slots
+									if (freeIndex == -1)
+									{
+										foreach (int index in sundrySlots)
+										{
+											if (inventory[index] == null)
+											{
+												freeIndex = index;
+												break;
+											}
+										}
+									}
+									break;
+								case ItemType.Sundry:
+									//iterate through sundryslots first
+									foreach (int index in sundrySlots)
+									{
+										if (inventory[index] == null)
+										{
+											freeIndex = index;
+											break;
+										}
+									}
+									break;
 							}
-                            else{
-                                //you currently have either a gun in a gun slot, or an ambiguous item in a sundry slot
-                                //you probably want to holster what you are holding
-                                //and grab the gun on the ground
-                                //but you can only do that if you have a holster to put the current item in
-                                //so we have to iterate through all of them and see if any are empty
 
-                                //declare workvar for free slot index
-                                int freeIndex = -1;
+                            //there should be no way that this is still -1 at the end because you got yer hands out so there's at least one slot open
 
-                                //iterate through gunslots first
-                                foreach(int index in gunSlots){
-                                    if(inventory[index] == null){
-                                        freeIndex = index;
-                                        break;
-                                    }
-                                }
 
-                                //if it's still null, iterate though sundry slots
-                                if (freeIndex == -1){
-                                    foreach(int index in sundrySlots){
-                                        if(inventory[index] == null){
-                                            freeIndex = index;
-                                            break;
-                                        }
-                                    }
-                                }
 
-                                //if it's still null, then there are no free slots
-                                if (freeIndex == -1){
-                                    //give an error here   
-                                }
+                            //you should just switch the inventory index to the new free slot
+                            //no actual behaviors have to occur because both the slot you're switching from and the one you're switching to are empty (especially if they are the same slot
+                            //that way I can also use the same code for the grab item coroutine ahahah
 
-                                //if you have an empty slot after all, then pass it to the holster and switch to item function
-                                //it will be used as the destination inventory slot to put the current item, and the index of the holster to put it in
-                                //meanwhile, the current inventory index will stay the same and the new gun you are picking up will become the inventory[inventoryIndex]
-                                HolsterAndSwitchToItem(hit.transform.gameObject, freeIndex);
+                            inventoryIndex = freeIndex;
 
-                            }
+                            StartCoroutine(GrabItem(hit.transform.gameObject));
 
-						}
-						else
-						{
-							//you are not in a gun/sundry slot
-							//give an error sound
-							return;
-						}
+                        }
+                        else
+                        {
+                            //you aren't in the right slot to just pick up the thing
+                            //maybe if you have a free slot, you'll pick up the thing and put it in the relevant holster if there is room
+                        }
 
-					}
+                    }
+                    else
+                    {
+
+
+	                    //you totally have an item in your hands
+	                    //so you now need a place to put this new item
+	                    //you're going to put it in a holster k?
+	                    //so you need to find the right holster for it
+	                    //if it's a gun, it's got to go in either a gun holster or a sundry holster
+
+	                    //and if there isn't a holster to stick it in by the end, you'll have to make a new method that autodrops the item in the last sundry holster and picks up the new item and puts it in that holster
+
+
+	                    //declare workvar for free slot index
+	                    int freeIndex = -1;
+
+
+
+	                    switch (currentItemNextScript.type)
+	                    {
+	                        case ItemType.Melee:
+	                            //iterate through meleeslots first
+	                            foreach (int index in meleeSlots)
+	                            {
+	                                if (inventory[index] == null)
+	                                {
+	                                    freeIndex = index;
+	                                    break;
+	                                }
+	                            }
+	                            
+	                            //if it's still null, iterate though sundry slots
+	                            if (freeIndex == -1)
+	                            {
+	                                foreach (int index in sundrySlots)
+	                                {
+	                                    if (inventory[index] == null)
+	                                    {
+	                                        freeIndex = index;
+	                                        break;
+	                                    }
+	                                }
+	                            }
+	                            break;
+	                        case ItemType.Gun:
+	                            //iterate through gunslots first
+	                            foreach (int index in gunSlots)
+	                            {
+	                                if (inventory[index] == null)
+	                                {
+	                                    freeIndex = index;
+	                                    break;
+	                                }
+	                            }
+
+	                            //if it's still null, iterate though sundry slots
+	                            if (freeIndex == -1)
+	                            {
+	                                foreach (int index in sundrySlots)
+	                                {
+	                                    if (inventory[index] == null)
+	                                    {
+	                                        freeIndex = index;
+	                                        break;
+	                                    }
+	                                }
+	                            }
+	                            break;
+	                        case ItemType.Gadget:
+	                            //iterate through gadgetslots first
+	                            foreach (int index in gadgetSlots)
+	                            {
+	                                if (inventory[index] == null)
+	                                {
+	                                    freeIndex = index;
+	                                    break;
+	                                }
+	                            }
+
+	                            //if it's still null, iterate though sundry slots
+	                            if (freeIndex == -1)
+	                            {
+	                                foreach (int index in sundrySlots)
+	                                {
+	                                    if (inventory[index] == null)
+	                                    {
+	                                        freeIndex = index;
+	                                        break;
+	                                    }
+	                                }
+	                            }
+	                            break;
+	                        case ItemType.Sundry:
+	                            //iterate through sundryslots first
+	                            foreach (int index in sundrySlots)
+	                            {
+	                                if (inventory[index] == null)
+	                                {
+	                                    freeIndex = index;
+	                                    break;
+	                                }
+	                            }
+	                            break;
+	                    }
+
+                        //if (freeIndex > inventoryIndex){
+                        //    print(freeIndex + " "+ inventoryIndex);
+                        //    freeIndex = inventoryIndex;
+                        //    print("hmm");
+                        //}
+
+
+	                    //if it's still null, then there are no free slots
+	                    if (freeIndex == -1)
+	                    {
+	                        //eventually write a function that drops the item in the last sundry slot and brings the new item directly to that holster
+	                    }
+
+                        print(freeIndex);
+
+                        //if you have an empty slot after all, then pass it to the holster and switch to item function
+                        //it will be used as the destination inventory slot to put the current item, and the index of the holster to put it in
+                        //meanwhile, the current inventory index will stay the same and the new gun you are picking up will become the inventory[inventoryIndex]
+                        HolsterAndSwitchToItem(hit.transform.gameObject, freeIndex);
+
+	                
+
+                    }
+
                 }
 
 			}
@@ -232,45 +425,53 @@ public class Inventory : MonoBehaviour
 
         }
 
-        if (Input.GetButtonDown("Slot 0") && stateChange == false && inventory[0] != null && inventoryIndex != 0){
-                StartCoroutine(SwitchToItem(0));
-                //print("switching to 0");
-        }
-		if (Input.GetButtonDown("Slot 1") && stateChange == false && inventory[1] != null && inventoryIndex != 1)
-		{
+        if (stateChange == false){
+
+
+			if (Input.GetButtonDown("Slot 0") && stateChange == false && inventory[0] != null && inventoryIndex != 0)
+			{
+				StartCoroutine(SwitchToItem(0));
+				//print("switching to 0");
+			}
+			if (Input.GetButtonDown("Slot 1") && stateChange == false && inventory[1] != null && inventoryIndex != 1)
+			{
 				StartCoroutine(SwitchToItem(1));
-                //print("switching to 1");
-		}
-		if (Input.GetButtonDown("Slot 2") && stateChange == false && inventory[2] != null && inventoryIndex != 2)
-		{
+				//print("switching to 1");
+			}
+			if (Input.GetButtonDown("Slot 2") && stateChange == false && inventory[2] != null && inventoryIndex != 2)
+			{
 				StartCoroutine(SwitchToItem(2));
-                //print("switching to 2");
-		}
-		if (Input.GetButtonDown("Slot 3") && stateChange == false && inventory[3] != null && inventoryIndex != 3)
-		{
+				//print("switching to 2");
+			}
+			if (Input.GetButtonDown("Slot 3") && stateChange == false && inventory[3] != null && inventoryIndex != 3)
+			{
 				StartCoroutine(SwitchToItem(3));
-                //print("switching to 3");
-		}
-		if (Input.GetButtonDown("Slot 4") && stateChange == false && inventory[4] != null && inventoryIndex != 4)
-		{
+				//print("switching to 3");
+			}
+			if (Input.GetButtonDown("Slot 4") && stateChange == false && inventory[4] != null && inventoryIndex != 4)
+			{
 				StartCoroutine(SwitchToItem(4));
-                //print("switching to 4");
-		}
-		if (Input.GetButtonDown("Slot 5") && stateChange == false && inventory[5] != null && inventoryIndex != 5)
-		{
+				//print("switching to 4");
+			}
+			if (Input.GetButtonDown("Slot 5") && stateChange == false && inventory[5] != null && inventoryIndex != 5)
+			{
 				StartCoroutine(SwitchToItem(5));
-                //print("switching to 5");
-		}
-		if (Input.GetButtonDown("Slot 6") && stateChange == false && inventory[6] != null && inventoryIndex != 6)
-		{
+				//print("switching to 5");
+			}
+			if (Input.GetButtonDown("Slot 6") && stateChange == false && inventory[6] != null && inventoryIndex != 6)
+			{
 				StartCoroutine(SwitchToItem(6));
-                //print("switching to 6");	
-		}
-		if (Input.GetButtonDown("Slot 7") && stateChange == false && inventory[7] != null && inventoryIndex != 7)
-		{	
+				//print("switching to 6");  
+			}
+			if (Input.GetButtonDown("Slot 7") && stateChange == false && inventory[7] != null && inventoryIndex != 7)
+			{
 				StartCoroutine(SwitchToItem(7));
-                //print("switching to 7");	
+				//print("switching to 7");  
+			}
+
+
 		}
+
 
 
 	}
@@ -422,10 +623,10 @@ public class Inventory : MonoBehaviour
         grabTime = Mathf.Clamp(grabTime, grabTimeLower, grabTimeUpper);
 
 		//move item to preferred hold position
-		LeanTween.moveLocal(currentItemNext, currentItemNextScript.localHoldPosition, grabTime).setEase(LeanTweenType.easeOutExpo);
+		LeanTween.moveLocal(currentItemNext, currentItemNextScript.localHoldPosition, grabTime).setEase(LeanTweenType.easeOutQuart);
 
         //move item to preferred hold rotation
-        LeanTween.rotateLocal(currentItemNext, currentItemNextScript.localHoldRotation, grabTime).setEase(LeanTweenType.easeOutExpo);
+        LeanTween.rotateLocal(currentItemNext, currentItemNextScript.localHoldRotation, grabTime).setEase(LeanTweenType.easeOutQuart);
 
 
 
@@ -438,10 +639,10 @@ public class Inventory : MonoBehaviour
 
 	        //rotate left hand to left hand hold on item
 	        LeanTween.rotateLocal(leftHandTransform.gameObject, (Quaternion.Euler(currentItemNextScript.localHoldRotation) * Quaternion.Euler(currentItemNextScript.leftHandHold.localEulerAngles))
-	                     .eulerAngles, grabTime).setEase(LeanTweenType.easeOutExpo);
+	                     .eulerAngles, grabTime).setEase(LeanTweenType.easeOutQuart);
 
 	        //move left hand to left hand hold on item
-	        LeanTween.move(leftHandTransform.gameObject, currentItemNextScript.leftHandHold, grabTime).setEase(LeanTweenType.easeOutExpo).setOnComplete( ()=>{
+	        LeanTween.move(leftHandTransform.gameObject, currentItemNextScript.leftHandHold, grabTime).setEase(LeanTweenType.easeOutQuart).setOnComplete( ()=>{
 
                 if (fromHolsterAndSwitchTo){
 					currentItemPrev = null;
@@ -450,9 +651,11 @@ public class Inventory : MonoBehaviour
                 }
 
 	            //nullify working variables
+                leftHandTransform.parent = currentItemNext.transform;
 	            currentItemNext = null;
 	            currentItemNextScript = null;
 	            stateChange = false;
+
 
 	        });
         }
@@ -464,10 +667,10 @@ public class Inventory : MonoBehaviour
 
 	        //rotate right hand to right hand hold on item
             LeanTween.rotateLocal(rightHandTransform.gameObject, (Quaternion.Euler(currentItemNextScript.localHoldRotation) * Quaternion.Euler(currentItemNextScript.rightHandHold.localEulerAngles))
-	                     .eulerAngles, grabTime).setEase(LeanTweenType.easeOutExpo);
+	                     .eulerAngles, grabTime).setEase(LeanTweenType.easeOutQuart);
 
 	        //move right hand to right hand hold on item
-            LeanTween.move(rightHandTransform.gameObject, currentItemNextScript.rightHandHold, grabTime).setEase(LeanTweenType.easeOutExpo).setOnComplete( ()=>{
+            LeanTween.move(rightHandTransform.gameObject, currentItemNextScript.rightHandHold, grabTime).setEase(LeanTweenType.easeOutQuart).setOnComplete( ()=>{
 
 				if (fromHolsterAndSwitchTo)
 				{
@@ -477,16 +680,16 @@ public class Inventory : MonoBehaviour
 				}
 
 	            //nullify working variables
+                rightHandTransform.parent = currentItemNext.transform;
 	            currentItemNext = null;
 	            currentItemNextScript = null;
 	            stateChange = false;
 
+
 	        });
         }
 
-		//It makes sense to keep the right hand childed to the gun in case you want to do ADS or something
-		//the left hand should be free so it can do other things
-
+		//NEVERMIND both hands will be childed to the gun
 
 
     }
@@ -511,8 +714,9 @@ public class Inventory : MonoBehaviour
 		currentItemPrev = inventory[inventoryIndex];
 		currentItemPrevScript = currentItemPrev.GetComponent<Item>();
 
-        //unchild right hand from item to handtransform
-        rightHandTransform.parent = handTransform;
+        ////unchild right hand from item to handtransform
+        //leftHandTransform.parent = handTransform;
+        //rightHandTransform.parent = handTransform;
 
 
         //unchild item from super hand 
@@ -548,38 +752,43 @@ public class Inventory : MonoBehaviour
         if (fromReplace == false){
 
 
-            //Physics.IgnoreCollision(col, GetComponent<Collider>());
+			//Physics.IgnoreCollision(col, GetComponent<Collider>());
 
+
+			StartCoroutine(ThrowWithYourHands(0.2f));
 
             StartCoroutine(DontCollideWithDroppingItem(col));
 
 	        //push gun a little bit out
             rigid.AddForce(cameraTransform.forward * force,ForceMode.Impulse);
 
-            rightHandTransform.parent = handTransform;
-            leftHandTransform.parent = handTransform;
+            //rightHandTransform.parent = handTransform;
+            //leftHandTransform.parent = handTransform;
 
 	        //move hands back to normal!! :)
-            LeanTween.moveLocal(rightHandTransform.gameObject,rightHandOriginPos,dropTime).setEase(LeanTweenType.easeOutExpo);
-            LeanTween.rotateLocal(rightHandTransform.gameObject, rightHandOriginRot.eulerAngles, dropTime).setEase(LeanTweenType.easeOutExpo);
-            LeanTween.moveLocal(leftHandTransform.gameObject, leftHandOriginPos, dropTime).setEase(LeanTweenType.easeOutExpo);
-            LeanTween.rotateLocal(leftHandTransform.gameObject, leftHandOriginRot.eulerAngles, dropTime).setEase(LeanTweenType.easeOutExpo).setOnComplete(()=>
-            {
+          //  LeanTween.moveLocal(rightHandTransform.gameObject,rightHandOriginPos,dropTime).setEase(LeanTweenType.easeOutExpo);
+          //  LeanTween.rotateLocal(rightHandTransform.gameObject, rightHandOriginRot.eulerAngles, dropTime).setEase(LeanTweenType.easeOutExpo);
+          //  LeanTween.moveLocal(leftHandTransform.gameObject, leftHandOriginPos, dropTime).setEase(LeanTweenType.easeOutExpo);
+          //  LeanTween.rotateLocal(leftHandTransform.gameObject, leftHandOriginRot.eulerAngles, dropTime).setEase(LeanTweenType.easeOutExpo).setOnComplete(()=>
+          //  {
 
-		        //nullify working variables
-		        currentItemPrev = null;
-		        currentItemPrevScript = null;
-		        stateChange = false;
-            });
+		        ////nullify working variables
+		        //currentItemPrev = null;
+		        //currentItemPrevScript = null;
+		        //stateChange = false;
+            //});
 		}
 		else{
 
             //child left hand to the item
             leftHandTransform.parent = currentItemPrev.transform;
 
-            //Physics.IgnoreCollision(col, GetComponent<Collider>());
+			//Physics.IgnoreCollision(col, GetComponent<Collider>());
+
+
 
             StartCoroutine(DontCollideWithDroppingItem(col));
+
 
 	        //push gun a little bit out
             rigid.AddForce(-transform.right * force + transform.forward * 0.8f * force,ForceMode.Impulse);
@@ -602,13 +811,33 @@ public class Inventory : MonoBehaviour
         //print(Time.time);
         Physics.IgnoreCollision(itemCol, GetComponent<Collider>(), false);
 
+
+
+    }
+
+    IEnumerator ThrowWithYourHands(float holdTime){
+        yield return new WaitForSeconds(holdTime);
+
+		leftHandTransform.parent = handTransform;
+		rightHandTransform.parent = handTransform;
+
+		LeanTween.moveLocal(rightHandTransform.gameObject, rightHandOriginPos, dropTime).setEase(LeanTweenType.easeOutExpo);
+		LeanTween.rotateLocal(rightHandTransform.gameObject, rightHandOriginRot.eulerAngles, dropTime).setEase(LeanTweenType.easeOutExpo);
+		LeanTween.moveLocal(leftHandTransform.gameObject, leftHandOriginPos, dropTime).setEase(LeanTweenType.easeOutExpo);
+		LeanTween.rotateLocal(leftHandTransform.gameObject, leftHandOriginRot.eulerAngles, dropTime).setEase(LeanTweenType.easeOutExpo).setOnComplete(() =>
+		{
+
+			//nullify working variables
+			currentItemPrev = null;
+			currentItemPrevScript = null;
+			stateChange = false;
+		});
     }
 
 
 
     void HolsterAndSwitchToItem(GameObject item, int slotToHolsterTo){
 
-        //if you don't have any room left, make error noise instead of auto emptying a holster. The player probably would want to choose which item to give up
 
 		//set working variables
 		stateChange = true;
@@ -710,18 +939,119 @@ public class Inventory : MonoBehaviour
 			if (useRightHand)
 			{
 				rightHandTransform.parent = currentItemPrev.transform;
-				leftHandTransform.parent = handTransform;
 			}
 			else
 			{
 				leftHandTransform.parent = currentItemPrev.transform;
-				rightHandTransform.parent = handTransform;
 
 			}
 
+			//we first need to find the most convenient target holster to put the old item
+
+
+			//declare workvar for free holster index
+			int freeIndex = -1;
+
+            switch (currentItemPrevScript.type)
+			{
+				case ItemType.Melee:
+					//iterate through meleeslots first
+					foreach (int index in meleeSlots)
+					{
+						if (inventory[index] == null)
+						{
+							freeIndex = index;
+							break;
+						}
+					}
+
+					//if it's still null, iterate though sundry slots
+					if (freeIndex == -1)
+					{
+						foreach (int index in sundrySlots)
+						{
+							if (inventory[index] == null)
+							{
+								freeIndex = index;
+								break;
+							}
+						}
+					}
+					break;
+				case ItemType.Gun:
+					//iterate through gunslots first
+					foreach (int index in gunSlots)
+					{
+						if (inventory[index] == null)
+						{
+							freeIndex = index;
+							break;
+						}
+					}
+
+					//if it's still null, iterate though sundry slots
+					if (freeIndex == -1)
+					{
+						foreach (int index in sundrySlots)
+						{
+							if (inventory[index] == null)
+							{
+								freeIndex = index;
+								break;
+							}
+						}
+					}
+					break;
+				case ItemType.Gadget:
+					//iterate through gadgetslots first
+					foreach (int index in gadgetSlots)
+					{
+						if (inventory[index] == null)
+						{
+							freeIndex = index;
+							break;
+						}
+					}
+
+					//if it's still null, iterate though sundry slots
+					if (freeIndex == -1)
+					{
+						foreach (int index in sundrySlots)
+						{
+							if (inventory[index] == null)
+							{
+								freeIndex = index;
+								break;
+							}
+						}
+					}
+					break;
+				case ItemType.Sundry:
+					//iterate through sundryslots first
+					foreach (int index in sundrySlots)
+					{
+						if (inventory[index] == null)
+						{
+							freeIndex = index;
+							break;
+						}
+					}
+					break;
+			}
+
+            if (freeIndex > inventoryIndex){
+                freeIndex = inventoryIndex;
+            }
+            //else{
+            //    inventory[freeIndex] = currentItemPrev;
+            //    inventory[inventoryIndex] = null;
+            
+            //    inventoryIndex = freeIndex;
+            //}
+
 
 			//child item to target holster
-			currentItemPrev.transform.parent = holsters[inventoryIndex];
+                currentItemPrev.transform.parent = holsters[inventoryIndex];
 
 
 
@@ -735,7 +1065,7 @@ public class Inventory : MonoBehaviour
             grabTime = Vector3.Distance(currentItemPrev.transform.position, holsters[inventoryIndex].position) * grabTimeMod;
             grabTime = Mathf.Clamp(grabTime, grabTimeLower, grabTimeUpper);
 
-            LeanTween.moveLocal(currentItemPrev, Vector3.zero, grabTime).setEase(LeanTweenType.easeOutQuad);
+            LeanTween.moveLocal(currentItemPrev, Vector3.zero, grabTime).setEase(LeanTweenType.easeOutQuart);
 			//LeanTween.rotateLocal(currentItemPrev, Quaternion.identity.eulerAngles, grabTime).setEase(LeanTweenType.easeOutExpo);
 
             //hakan
@@ -745,7 +1075,7 @@ public class Inventory : MonoBehaviour
 
 
 
-            currentItemPrev.transform.DOLocalRotateQuaternion(Quaternion.Euler(currentItemPrevScript.localHoldRotation),grabTime).SetEase(Ease.OutQuad);
+            currentItemPrev.transform.DOLocalRotateQuaternion(Quaternion.Euler(currentItemPrevScript.localHoldRotation),grabTime).SetEase(Ease.OutQuart);
 
 
 			if (useRightHand)
@@ -757,8 +1087,8 @@ public class Inventory : MonoBehaviour
                 grabTime = Vector3.Distance(leftHandTransform.position, currentItemNextScript.leftHandHold.position) * grabTimeMod;
                 grabTime = Mathf.Clamp(grabTime, grabTimeLower, grabTimeUpper);
 
-				LeanTween.moveLocal(leftHandTransform.gameObject, currentItemNextScript.leftHandHold.localPosition, grabTime).setEase(LeanTweenType.easeOutQuad);
-                LeanTween.rotateLocal(leftHandTransform.gameObject, currentItemNextScript.leftHandHold.localRotation.eulerAngles, grabTime).setEase(LeanTweenType.easeOutQuad).setOnComplete(()=>{
+				LeanTween.moveLocal(leftHandTransform.gameObject, currentItemNextScript.leftHandHold.localPosition, grabTime).setEase(LeanTweenType.easeOutQuart);
+                LeanTween.rotateLocal(leftHandTransform.gameObject, currentItemNextScript.leftHandHold.localRotation.eulerAngles, grabTime).setEase(LeanTweenType.easeOutQuart).setOnComplete(()=>{
                     doneWithPhase1 = true;
                 });
 			}
@@ -769,8 +1099,8 @@ public class Inventory : MonoBehaviour
                 grabTime = Vector3.Distance(rightHandTransform.position, currentItemNextScript.rightHandHold.position) * grabTimeMod;
                 grabTime = Mathf.Clamp(grabTime, grabTimeLower, grabTimeUpper);
 
-				LeanTween.moveLocal(rightHandTransform.gameObject, currentItemNextScript.rightHandHold.localPosition, grabTime).setEase(LeanTweenType.easeOutQuad);
-                LeanTween.rotateLocal(rightHandTransform.gameObject, currentItemNextScript.rightHandHold.localRotation.eulerAngles, grabTime).setEase(LeanTweenType.easeOutQuad).setOnComplete(()=>{
+				LeanTween.moveLocal(rightHandTransform.gameObject, currentItemNextScript.rightHandHold.localPosition, grabTime).setEase(LeanTweenType.easeOutQuart);
+                LeanTween.rotateLocal(rightHandTransform.gameObject, currentItemNextScript.rightHandHold.localRotation.eulerAngles, grabTime).setEase(LeanTweenType.easeOutQuart).setOnComplete(()=>{
                     doneWithPhase1 = true;
                 });
 			}
@@ -783,8 +1113,8 @@ public class Inventory : MonoBehaviour
             grabTime = Vector3.Distance(rightHandTransform.position, currentItemNextScript.rightHandHold.position) * grabTimeMod;
             grabTime = Mathf.Clamp(grabTime, grabTimeLower, grabTimeUpper);
 
-	        LeanTween.moveLocal(rightHandTransform.gameObject, currentItemNextScript.rightHandHold.localPosition, grabTime).setEase(LeanTweenType.easeOutQuad);
-	        LeanTween.rotateLocal(rightHandTransform.gameObject, currentItemNextScript.rightHandHold.localRotation.eulerAngles, grabTime).setEase(LeanTweenType.easeOutQuad);
+	        LeanTween.moveLocal(rightHandTransform.gameObject, currentItemNextScript.rightHandHold.localPosition, grabTime).setEase(LeanTweenType.easeOutQuart);
+	        LeanTween.rotateLocal(rightHandTransform.gameObject, currentItemNextScript.rightHandHold.localRotation.eulerAngles, grabTime).setEase(LeanTweenType.easeOutQuart);
 
 
 	        leftHandTransform.parent = currentItemNext.transform;
@@ -792,8 +1122,8 @@ public class Inventory : MonoBehaviour
             grabTime = Vector3.Distance(leftHandTransform.position, currentItemNextScript.leftHandHold.position) * grabTimeMod;
             grabTime = Mathf.Clamp(grabTime, grabTimeLower, grabTimeUpper);
 
-	        LeanTween.moveLocal(leftHandTransform.gameObject, currentItemNextScript.leftHandHold.localPosition, grabTime).setEase(LeanTweenType.easeOutQuad);
-            LeanTween.rotateLocal(leftHandTransform.gameObject, currentItemNextScript.leftHandHold.localRotation.eulerAngles, grabTime).setEase(LeanTweenType.easeOutQuad).setOnComplete(()=>{
+	        LeanTween.moveLocal(leftHandTransform.gameObject, currentItemNextScript.leftHandHold.localPosition, grabTime).setEase(LeanTweenType.easeOutQuart);
+            LeanTween.rotateLocal(leftHandTransform.gameObject, currentItemNextScript.leftHandHold.localRotation.eulerAngles, grabTime).setEase(LeanTweenType.easeOutQuart).setOnComplete(()=>{
                 doneWithPhase1 = true;
             });
 
@@ -804,10 +1134,13 @@ public class Inventory : MonoBehaviour
 
 
 
+
+
         yield return new WaitUntil(()=>doneWithPhase1);
 
 
 
+		bool doneWithPhase2 = false;
 
         currentItemNext.transform.parent = handTransform;
 
@@ -847,8 +1180,11 @@ public class Inventory : MonoBehaviour
         grabTime = Vector3.Distance(currentItemNext.transform.position, handTransform.TransformPoint(currentItemNextScript.localHoldPosition)) * grabTimeMod;
         grabTime = Mathf.Clamp(grabTime, grabTimeLower, grabTimeUpper);
 
-        //move item to preferred hold position
-        LeanTween.moveLocal(currentItemNext, currentItemNextScript.localHoldPosition, grabTime).setEase(LeanTweenType.easeOutQuad);
+		//move item to preferred hold position
+		LeanTween.moveLocal(currentItemNext, currentItemNextScript.localHoldPosition, grabTime).setEase(LeanTweenType.easeOutQuart).setOnComplete(() =>
+		{
+			doneWithPhase2 = true;
+		});
 
         //move item to preferred hold rotation
         //hakan
@@ -858,9 +1194,8 @@ public class Inventory : MonoBehaviour
 
         //currentItemNext.transform.localRotation = Quaternion.RotateTowards(currentItemNext.transform.localRotation, Quaternion.Euler(currentItemNextScript.localHoldRotation), 0.5f);
 
-        currentItemNext.transform.DOLocalRotateQuaternion(Quaternion.Euler(currentItemNextScript.localHoldRotation), grabTime).SetEase(Ease.OutQuad);
+        currentItemNext.transform.DOLocalRotateQuaternion(Quaternion.Euler(currentItemNextScript.localHoldRotation), grabTime).SetEase(Ease.OutQuart);
 
-        bool doneWithPhase2 = false;
 
 
         if (!fromHands){
@@ -868,36 +1203,61 @@ public class Inventory : MonoBehaviour
 
 	        if(!useRightHand){
 
-	            leftHandTransform.parent = handTransform;
+	            //leftHandTransform.parent = handTransform;
 
-                grabTime = Vector3.Distance(leftHandTransform.transform.position, currentItemNextScript.leftHandHold.position) * grabTimeMod;
-                grabTime = Mathf.Clamp(grabTime, grabTimeLower, grabTimeUpper);
+             //   grabTime = Vector3.Distance(leftHandTransform.transform.position, currentItemNextScript.leftHandHold.position) * grabTimeMod;
+             //   grabTime = Mathf.Clamp(grabTime, grabTimeLower, grabTimeUpper);
 
-	            //rotate left hand to left hand hold on item
-	            LeanTween.rotateLocal(leftHandTransform.gameObject, (Quaternion.Euler(currentItemNextScript.localHoldRotation) * Quaternion.Euler(currentItemNextScript.leftHandHold.localEulerAngles))
-	                         .eulerAngles, grabTime).setEase(LeanTweenType.easeOutQuad);
+	            ////rotate left hand to left hand hold on item
+	            //LeanTween.rotateLocal(leftHandTransform.gameObject, (Quaternion.Euler(currentItemNextScript.localHoldRotation) * Quaternion.Euler(currentItemNextScript.leftHandHold.localEulerAngles))
+	            //             .eulerAngles, grabTime).setEase(LeanTweenType.easeOutQuart);
 
-	            //move left hand to left hand hold on item
-                LeanTween.move(leftHandTransform.gameObject, currentItemNextScript.leftHandHold, grabTime).setEase(LeanTweenType.easeOutQuad).setOnComplete(()=>{
-                    doneWithPhase2 = true;
-                });
+	            ////move left hand to left hand hold on item
+                //LeanTween.move(leftHandTransform.gameObject, currentItemNextScript.leftHandHold, grabTime).setEase(LeanTweenType.easeOutQuart).setOnComplete(()=>{
+                //    doneWithPhase2 = true;
+                //});
+
+                leftHandTransform.parent = currentItemNext.transform;
+
+				grabTime = Vector3.Distance(leftHandTransform.transform.position, currentItemNextScript.leftHandHold.position) * grabTimeMod;
+				grabTime = Mathf.Clamp(grabTime, grabTimeLower, grabTimeUpper);
+
+
+				//rotate left hand to left hand hold on item
+                LeanTween.rotateLocal(leftHandTransform.gameObject, currentItemNextScript.leftHandHold.localRotation.eulerAngles, grabTime).setEase(LeanTweenType.easeOutQuart);
+
+                //move left hand to left hand hold on item
+                LeanTween.moveLocal(leftHandTransform.gameObject, currentItemNextScript.leftHandHold.localPosition, grabTime).setEase(LeanTweenType.easeOutQuart);
 
 
 	        }
 	        else{
-	            rightHandTransform.parent = handTransform;
+				//rightHandTransform.parent = handTransform;
 
-                grabTime = Vector3.Distance(rightHandTransform.transform.position, currentItemNextScript.rightHandHold.position) * grabTimeMod;
-                grabTime = Mathf.Clamp(grabTime, grabTimeLower, grabTimeUpper);
+				//   grabTime = Vector3.Distance(rightHandTransform.transform.position, currentItemNextScript.rightHandHold.position) * grabTimeMod;
+				//   grabTime = Mathf.Clamp(grabTime, grabTimeLower, grabTimeUpper);
 
-	            //rotate right hand to right hand hold on item
-	            LeanTween.rotateLocal(rightHandTransform.gameObject, (Quaternion.Euler(currentItemNextScript.localHoldRotation) * Quaternion.Euler(currentItemNextScript.rightHandHold.localEulerAngles))
-	                         .eulerAngles, grabTime).setEase(LeanTweenType.easeOutQuad);
+				////rotate right hand to right hand hold on item
+				//LeanTween.rotateLocal(rightHandTransform.gameObject, (Quaternion.Euler(currentItemNextScript.localHoldRotation) * Quaternion.Euler(currentItemNextScript.rightHandHold.localEulerAngles))
+				//             .eulerAngles, grabTime).setEase(LeanTweenType.easeOutQuart);
 
-	            //move right hand to right hand hold on item
-                LeanTween.move(rightHandTransform.gameObject, currentItemNextScript.rightHandHold, grabTime).setEase(LeanTweenType.easeOutQuad).setOnComplete(()=>{
-                    doneWithPhase2 = true;
-                });
+				////move right hand to right hand hold on item
+				//LeanTween.move(rightHandTransform.gameObject, currentItemNextScript.rightHandHold, grabTime).setEase(LeanTweenType.easeOutQuart).setOnComplete(()=>{
+				//    doneWithPhase2 = true;
+				//});
+
+
+				rightHandTransform.parent = currentItemNext.transform;
+
+				grabTime = Vector3.Distance(rightHandTransform.transform.position, currentItemNextScript.rightHandHold.position) * grabTimeMod;
+				grabTime = Mathf.Clamp(grabTime, grabTimeLower, grabTimeUpper);
+
+				//rotate left hand to left hand hold on item
+				LeanTween.rotateLocal(rightHandTransform.gameObject, currentItemNextScript.rightHandHold.localRotation.eulerAngles, grabTime).setEase(LeanTweenType.easeOutQuart);
+
+
+				//move left hand to left hand hold on item
+				LeanTween.moveLocal(rightHandTransform.gameObject, currentItemNextScript.rightHandHold.localPosition, grabTime).setEase(LeanTweenType.easeOutQuart);
 	        }
         }
 
@@ -905,9 +1265,7 @@ public class Inventory : MonoBehaviour
 
 
         yield return new WaitUntil(()=>doneWithPhase2);
-
-
-        leftHandTransform.parent = handTransform;
+          
 
         //nullify working variables
         if (!fromHands){
@@ -918,6 +1276,7 @@ public class Inventory : MonoBehaviour
 
         currentItemPrev = null;
         currentItemPrevScript = null;
+
 
         stateChange = false;
 

@@ -102,20 +102,20 @@
     <Reference Include="UnityEngine.VR">
       <HintPath>/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/UnityVR/RuntimeEditor/UnityEngine.VR.dll</HintPath>
     </Reference>
-    <Reference Include="SabreCSG.Core">
-      <HintPath>Assets/SabreCSG/Scripts/SabreCSG.Core.dll</HintPath>
-    </Reference>
     <Reference Include="DOTween">
       <HintPath>Assets/Demigiant/DOTween/DOTween.dll</HintPath>
     </Reference>
     <Reference Include="DOTween43">
       <HintPath>Assets/Demigiant/DOTween/DOTween43.dll</HintPath>
     </Reference>
+    <Reference Include="DOTween46">
+      <HintPath>Assets/Demigiant/DOTween/DOTween46.dll</HintPath>
+    </Reference>
     <Reference Include="DOTween50">
       <HintPath>Assets/Demigiant/DOTween/DOTween50.dll</HintPath>
     </Reference>
-    <Reference Include="DOTween46">
-      <HintPath>Assets/Demigiant/DOTween/DOTween46.dll</HintPath>
+    <Reference Include="SabreCSG.Core">
+      <HintPath>Assets/SabreCSG/Scripts/SabreCSG.Core.dll</HintPath>
     </Reference>
     <Reference Include="UnityEditor">
       <HintPath>/Applications/Unity/Unity.app/Contents/Managed/UnityEditor.dll</HintPath>
@@ -220,6 +220,7 @@
     <Compile Include="Assets\Scripts\FPMovement2.cs" />
     <Compile Include="Assets\Scripts\FPSCounter.cs" />
     <Compile Include="Assets\Scripts\Inventory.cs" />
+    <Compile Include="Assets\Scripts\Inventory2.cs" />
     <Compile Include="Assets\Scripts\Item.cs" />
     <Compile Include="Assets\Scripts\MouseRotate.cs" />
     <Compile Include="Assets\Scripts\Selfdestruct.cs" />

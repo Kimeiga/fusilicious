@@ -10,7 +10,6 @@ public class Item : MonoBehaviour {
 
     public ItemType type;
 
-    [System.NonSerialized]
 	public bool active = false;
 
     public Transform rightHandHold;
