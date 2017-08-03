@@ -891,27 +891,20 @@ public class Inventory2 : MonoBehaviour
 
 
         //nullify working variables
-        if (!fromHands)
-		{
+        if (!fromHands){
 			prevItem = null;
 			prevItemScript = null;
-
         }
 
         if(!toHands){
-
 			nextItem = null;
 			nextItemScript = null;
         }
 
-
         stateChange = false;
-
 
         inventoryIndex = nextSlot;
 
-
-        ///wheew.afdjasldkf
     }
 
 

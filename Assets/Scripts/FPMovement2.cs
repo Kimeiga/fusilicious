@@ -60,7 +60,7 @@ public class FPMovement2 : MonoBehaviour {
 	public float springOffset = 0.2f;
 	public float crouchingSpeed = 0.2f;
 	public float springMod = 2;
-	private float standHeight;              //You can edit this one by just changing the height of the controller in the inspector
+	private float standHeight; //You can edit this one by just changing the height of the controller in the inspector
 	
 	//working variables for crouching mechanism
 	private bool recoilingFromLand = false;
@@ -114,7 +114,6 @@ public class FPMovement2 : MonoBehaviour {
 
 		meshTransformOriginalScale = meshTransform.localScale;
 
-        //LeanTween.value(gameObject, updateValueExampleCallback, characterController.height, crouchHeight, 1f).setEase(LeanTweenType.easeOutElastic);
 	}
 	
 	void Update()
@@ -268,7 +267,6 @@ public class FPMovement2 : MonoBehaviour {
 			Vector3.OrthoNormalize(ref hitNormal, ref slideMoveDirection);
 			slideMoveDirection *= slideSpeed;
 
-			//slideMoveDirection.y *= 4;
 
 			moveDirection *= 0.2f;
 			moveDirection += slideMoveDirection * 0.8f * slideDirectionMod ;
@@ -487,12 +485,8 @@ public class FPMovement2 : MonoBehaviour {
 		if (other.gameObject.tag == "Level" && !grounded)
 		{
 
-			if (canMove && Input.GetButton("Wall Hang"))
-			{
-				wallHang = true;
-
-			}
-		}
+            wallHang |= (canMove && Input.GetButton("Wall Hang"));
+        }
 	}
 
 
