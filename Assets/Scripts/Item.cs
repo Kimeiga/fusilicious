@@ -62,7 +62,7 @@ public class Item : MonoBehaviour {
 		//if I didn't set left hand hold
 		if (leftHandHold == null)
 		{
-            leftHandHold = transform.Find("Right Hand Hold");
+            leftHandHold = transform.Find("Left Hand Hold");
 		}
 
 	}

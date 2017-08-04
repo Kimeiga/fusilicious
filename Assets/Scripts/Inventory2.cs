@@ -9,16 +9,7 @@ public class Inventory2 : MonoBehaviour
 {
 
     //Poder Variables
-    public bool stateChange;
-
-
-    //Initial Grab Raycast Variables
-    public Transform cameraTransform;
-    public float grabRange = 4;
-    private LayerMask grabLayerMask;
-
-    private RaycastHit hit;
-
+    private bool stateChange;
 
     //Grabbing Behaviour Variables
     private GameObject nextItem;
@@ -26,6 +17,15 @@ public class Inventory2 : MonoBehaviour
 
     private GameObject prevItem;
     private Item prevItemScript;
+
+
+    //Initial Grab Raycast Variables
+    public Transform cameraTransform;
+    public float grabRange = 4;
+    private LayerMask grabLayerMask;
+    private RaycastHit hit;
+
+
 
     //public float grabTime = 0.3f;
     private float grabTime = 1;
@@ -45,15 +45,10 @@ public class Inventory2 : MonoBehaviour
     private Vector3 rightHandOriginPos;
     private Quaternion rightHandOriginRot;
 
-    public Transform handTransform;
+    public Transform handsTransform;
 
 
     //Inventory Variables
-
-    public FPMovement2 fpmScript;
-
-
-
 
     public GameObject[] inventory;
     public int maxInventorySize = 8;
@@ -68,12 +63,12 @@ public class Inventory2 : MonoBehaviour
     //drop variables:
     public float dropTime = 0.3f;
     public float dropForce = 0.5f;
+	public float throwForce = 3;
+
 
     public Collider playerCollider;
 
 
-    //Throw Variables
-    public float throwForce = 3;
 
 
 
@@ -81,7 +76,6 @@ public class Inventory2 : MonoBehaviour
     void Start()
     {
 
-        fpmScript = GetComponent<FPMovement2>();
 
         inventory = new GameObject[maxInventorySize];
         inventoryIndex = startingInventoryIndex;
@@ -359,11 +353,11 @@ public class Inventory2 : MonoBehaviour
 
 
         //child item to super hand to make preferred local position and rotation easier to calculate
-        nextItem.transform.parent = handTransform;
+        nextItem.transform.parent = handsTransform;
 
 
         //set grab time proportional to distance between hold position and the item's position
-        grabTime = Vector3.Distance(nextItem.transform.position, handTransform.TransformPoint(nextItemScript.localHoldPosition)) * grabTimeMod;
+        grabTime = Vector3.Distance(nextItem.transform.position, handsTransform.TransformPoint(nextItemScript.localHoldPosition)) * grabTimeMod;
         grabTime = Mathf.Clamp(grabTime, grabTimeLower, grabTimeUpper);
 
         //move item to preferred hold position
@@ -477,7 +471,11 @@ public class Inventory2 : MonoBehaviour
         Transform[] childTransforms = prevItem.GetComponentsInChildren<Transform>();
         foreach (Transform trans in childTransforms)
         {
-            trans.gameObject.layer = LayerMask.NameToLayer("Item");
+            if (trans.gameObject != rightHandTransform.gameObject && trans.gameObject != leftHandTransform.gameObject){
+                if (System.Array.IndexOf(rightHandChildren,trans) == -1 && System.Array.IndexOf(leftHandChildren, trans) == -1){
+                    trans.gameObject.layer = LayerMask.NameToLayer("Item");    
+                }
+            }
         }
 
 
@@ -500,8 +498,8 @@ public class Inventory2 : MonoBehaviour
 	{
 		yield return new WaitForSeconds(holdTime);
 
-		leftHandTransform.parent = handTransform;
-		rightHandTransform.parent = handTransform;
+		leftHandTransform.parent = handsTransform;
+		rightHandTransform.parent = handsTransform;
 
 		LeanTween.moveLocal(rightHandTransform.gameObject, rightHandOriginPos, dropTime).setEase(LeanTweenType.easeOutExpo);
 		LeanTween.rotateLocal(rightHandTransform.gameObject, rightHandOriginRot.eulerAngles, dropTime).setEase(LeanTweenType.easeOutExpo);
@@ -556,13 +554,13 @@ public class Inventory2 : MonoBehaviour
         if (useRightHand)
         {
             rightHandTransform.parent = prevItem.transform;
-            leftHandTransform.parent = handTransform;
+            leftHandTransform.parent = handsTransform;
 
         }
         else
         {
             leftHandTransform.parent = prevItem.transform;
-            rightHandTransform.parent = handTransform;
+            rightHandTransform.parent = handsTransform;
         }
 
         //child item to target holster
@@ -701,7 +699,7 @@ public class Inventory2 : MonoBehaviour
 				//you are going to hands so you need to move your non putting away hand back to its normal position and shit so it doesn't look weird 
 				if (useRightHand)
 				{
-                    leftHandTransform.parent = handTransform.transform;
+                    leftHandTransform.parent = handsTransform.transform;
 
 					LeanTween.moveLocal(leftHandTransform.gameObject, leftHandOriginPos, dropTime).setEase(LeanTweenType.easeOutQuart);
                     LeanTween.rotateLocal(leftHandTransform.gameObject, leftHandOriginRot.eulerAngles, dropTime).setEase(LeanTweenType.easeOutQuart);
@@ -710,7 +708,7 @@ public class Inventory2 : MonoBehaviour
 				else
 				{
 					//child non putting away hand to next item so it can move to the hand hold and prep to ready it
-                    rightHandTransform.parent = handTransform.transform;
+                    rightHandTransform.parent = handsTransform.transform;
 
 
 					LeanTween.moveLocal(rightHandTransform.gameObject, rightHandOriginPos, dropTime).setEase(LeanTweenType.easeOutQuart);
@@ -764,7 +762,7 @@ public class Inventory2 : MonoBehaviour
         if(!toHands){
 
             //put new item on handtransform so you can ready it and shit
-			nextItem.transform.parent = handTransform;
+			nextItem.transform.parent = handsTransform;
 
 			//put item on Player Item Layer so it doesn't appear to clip through walls
 			nextItem.layer = LayerMask.NameToLayer("Player Item");
@@ -782,7 +780,7 @@ public class Inventory2 : MonoBehaviour
 			nextItemScript.active = true;
 
             //set grab time
-			grabTime = Vector3.Distance(nextItem.transform.position, handTransform.TransformPoint(nextItemScript.localHoldPosition)) * grabTimeMod;
+			grabTime = Vector3.Distance(nextItem.transform.position, handsTransform.TransformPoint(nextItemScript.localHoldPosition)) * grabTimeMod;
 			grabTime = Mathf.Clamp(grabTime, grabTimeLower, grabTimeUpper);
 
             //move item to preferred hold position
@@ -860,12 +858,12 @@ public class Inventory2 : MonoBehaviour
 			if (useRightHand)
 			{
                 //set grab time based on how far away the hand location is
-                grabTime = Vector3.Distance(rightHandTransform.position, handTransform.TransformPoint(rightHandOriginPos)) * grabTimeMod;
+                grabTime = Vector3.Distance(rightHandTransform.position, handsTransform.TransformPoint(rightHandOriginPos)) * grabTimeMod;
 				grabTime = Mathf.Clamp(grabTime, grabTimeLower, grabTimeUpper);
 
 
 				//child putting away hand to hand transform so we can move it back to place
-				rightHandTransform.parent = handTransform.transform;
+				rightHandTransform.parent = handsTransform.transform;
 
 				LeanTween.moveLocal(rightHandTransform.gameObject, rightHandOriginPos, dropTime).setEase(LeanTweenType.easeOutQuart);
 				LeanTween.rotateLocal(rightHandTransform.gameObject, rightHandOriginRot.eulerAngles, dropTime).setEase(LeanTweenType.easeOutQuart);
@@ -874,10 +872,10 @@ public class Inventory2 : MonoBehaviour
 			else
 			{
 				//set grab time based on how far away the hand lockation is
-				grabTime = Vector3.Distance(leftHandTransform.position, handTransform.TransformPoint(leftHandOriginPos)) * grabTimeMod;
+				grabTime = Vector3.Distance(leftHandTransform.position, handsTransform.TransformPoint(leftHandOriginPos)) * grabTimeMod;
 				grabTime = Mathf.Clamp(grabTime, grabTimeLower, grabTimeUpper);
 
-				leftHandTransform.parent = handTransform.transform;
+				leftHandTransform.parent = handsTransform.transform;
 
 				LeanTween.moveLocal(leftHandTransform.gameObject, leftHandOriginPos, dropTime).setEase(LeanTweenType.easeOutQuart);
 				LeanTween.rotateLocal(leftHandTransform.gameObject, leftHandOriginRot.eulerAngles, dropTime).setEase(LeanTweenType.easeOutQuart);
