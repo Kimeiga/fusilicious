@@ -5,54 +5,41 @@ using UnityEngine;
 public class VaneScript : MonoBehaviour {
 
 
-
-
-	public Vector3 displacement;
-
-	public Vector3 lastPosition = Vector3.zero;
-
-
+    public FPMovement2 fpmScript;
+    private Vector3 flatDisplacement;
     public GameObject vane;
 
 	// Use this for initialization
 	void Start()
 	{
+        fpmScript = GetComponent<FPMovement2>();
 
 	}
 
 	// Update is called once per frame
 	void FixedUpdate()
 	{
+        //get 3d displacement from fpm script
+        flatDisplacement = fpmScript.measuredDisplacement;
 
+        //flatify it
+        flatDisplacement = new Vector3(flatDisplacement.x, 0, flatDisplacement.z);
 
-        displacement = transform.position - lastPosition;
+        //if it's not zero
+        if(flatDisplacement != Vector3.zero){
 
-        displacement = new Vector3(displacement.x, 0, displacement.z);
-
-        if(displacement != Vector3.zero){
-
+            //make the vane appear and rotate it correctly
             vane.SetActive(true);
-
-			Quaternion rot = Quaternion.LookRotation(displacement, Vector3.up);
-
+			Quaternion rot = Quaternion.LookRotation(flatDisplacement, Vector3.up);
 			vane.transform.rotation = rot;
-
 			vane.transform.rotation = Quaternion.Euler(0, vane.transform.rotation.eulerAngles.y, 0);
         }
         else{
+
+            //if it's zero just make it disappear
             vane.SetActive(false);
         }
 
-
-
-		lastPosition = transform.position;
-
-
-
-	}
-
-	void Update()
-	{
 	}
 
 

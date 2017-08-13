@@ -219,10 +219,13 @@
     <Compile Include="Assets\Scripts\FPMovement1.cs" />
     <Compile Include="Assets\Scripts\FPMovement2.cs" />
     <Compile Include="Assets\Scripts\FPSCounter.cs" />
+    <Compile Include="Assets\Scripts\GameManager.cs" />
+    <Compile Include="Assets\Scripts\Gun.cs" />
     <Compile Include="Assets\Scripts\Inventory.cs" />
     <Compile Include="Assets\Scripts\Inventory2.cs" />
     <Compile Include="Assets\Scripts\Item.cs" />
     <Compile Include="Assets\Scripts\MouseRotate.cs" />
+    <Compile Include="Assets\Scripts\Player.cs" />
     <Compile Include="Assets\Scripts\Selfdestruct.cs" />
     <Compile Include="Assets\Scripts\Sway.cs" />
     <Compile Include="Assets\Scripts\VaneScript.cs" />
@@ -252,6 +255,7 @@
     <None Include="Assets\SabreCSG\Shaders\Tri-Planar.shader" />
     <None Include="Assets\SabreCSG\Shaders\UINoAlpha.shader" />
     <None Include="Assets\SabreCSG\Shaders\VertexTinted.shader" />
+    <None Include="Assets\Shaders\OutlineDiffuse.shader" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="GenerateTargetFrameworkMonikerAttribute" />

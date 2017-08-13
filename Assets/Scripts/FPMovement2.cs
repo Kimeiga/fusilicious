@@ -68,7 +68,6 @@ public class FPMovement2 : MonoBehaviour {
 	private float targetHeight;
 
 
-
 	[Space(10)]
 
 
@@ -97,8 +96,20 @@ public class FPMovement2 : MonoBehaviour {
 	private bool dontBounceAssist = false;
 
 
+	[Space(10)]
+
+	[Header("Measurements")]
+	public Vector3 measuredDisplacement;
+	public float measuredSpeed;
+	private Vector3 lastPosition;
+
+
 	// Use this for initialization
 	void Start () {
+
+        //initialize last position
+        lastPosition = Vector3.zero;
+
         characterController = GetComponent<CharacterController>();
 
 		stepOffsetInitial = characterController.stepOffset;
@@ -144,6 +155,7 @@ public class FPMovement2 : MonoBehaviour {
 	}
 
 	void FixedUpdate() {
+
 
 		if (grounded)
 		{
@@ -203,6 +215,13 @@ public class FPMovement2 : MonoBehaviour {
 		
 		wallHang = false;
 		jumpButtonUp = false;
+
+
+		measuredDisplacement = transform.position - lastPosition;
+		measuredSpeed = measuredDisplacement.magnitude;
+
+        //set lastposition for displacement/speed calculation
+        lastPosition = transform.position;
 		
 	}
 

@@ -18,14 +18,7 @@ public class Inventory2 : MonoBehaviour
     private GameObject prevItem;
     private Item prevItemScript;
 
-
-    //Initial Grab Raycast Variables
-    public Transform cameraTransform;
-    public float grabRange = 4;
-    private LayerMask grabLayerMask;
-    private RaycastHit hit;
-
-
+    [Header("Grab Timing")]
 
     //public float grabTime = 0.3f;
     private float grabTime = 1;
@@ -33,6 +26,21 @@ public class Inventory2 : MonoBehaviour
     public float grabTimeLower = 0.4f;
     public float grabTimeUpper = 0.7f;
 
+    [Space(10)]
+    [Header("Grab Raycast")]
+
+    //Initial Grab Raycast Variables
+    public Transform cameraTransform;
+    public Transform fireTransform;
+    public float grabRange = 4;
+    private LayerMask grabLayerMask;
+    private RaycastHit hit;
+
+    GameObject hitItem;
+    Item hitItemScript;
+
+	[Space(10)]
+	[Header("Hands")]
 
     //Hands Variables
     public Transform leftHandTransform;
@@ -47,9 +55,22 @@ public class Inventory2 : MonoBehaviour
 
     public Transform handsTransform;
 
+	[Space(10)]
+	[Header("Holsters")]
+
+	public Transform[] holsters;
+
+	[Space(10)]
+	[Header("Player Properties")]
+
+    public Collider playerCollider;
+    private FPMovement2 fpmScript;
+
+
+    [Space(10)]
+    [Header("Inventory")]
 
     //Inventory Variables
-
     public GameObject[] inventory;
     public int maxInventorySize = 8;
 
@@ -57,16 +78,14 @@ public class Inventory2 : MonoBehaviour
     public int startingInventoryIndex = 1;
 
 
-
-    public Transform[] holsters;
+	[Space(10)]
+	[Header("Drop and Throw")]
 
     //drop variables:
     public float dropTime = 0.3f;
     public float dropForce = 0.5f;
 	public float throwForce = 3;
 
-
-    public Collider playerCollider;
 
 
 
@@ -75,6 +94,9 @@ public class Inventory2 : MonoBehaviour
     // Use this for initialization
     void Start()
     {
+
+        //set fpmscript for enhanced drop mechanic
+        fpmScript = GetComponent<FPMovement2>();
 
 
         inventory = new GameObject[maxInventorySize];
@@ -118,26 +140,68 @@ public class Inventory2 : MonoBehaviour
 
             if (Physics.Raycast(cameraTransform.position, cameraTransform.forward, out hit, grabRange, grabLayerMask))
             {
-                //you could make it glow or something in here to show the player that he/she can grab it right HERE
+
+                //oneshot
+                //if you go from looking at nothing to looking at an item
+                if(hitItem == null){
+
+					hitItem = hit.transform.gameObject;
+					hitItemScript = hitItem.GetComponent<Item>();
+
+                    //highlight item here
+                    hitItemScript.Highlight();
+                }
+
+                //oneshot
+                //if you go from looking at one item to another
+                if(hit.transform.gameObject != hitItem){
+
+					//unhighlight item
+                    hitItemScript.Unhighlight();
+
+                    //store new item
+					hitItem = hit.transform.gameObject;
+					hitItemScript = hitItem.GetComponent<Item>();
+                    //rehighlight
+                    hitItemScript.Highlight();
+
+                }
+
 
 
 
                 //ONESHOT: player wants to grab something
                 if (Input.GetButtonDown("Grab"))
                 {
+
+                    //set the fire transform if it's a gun
+                    if(hitItemScript.type == ItemType.Gun){
+                        hitItem.GetComponent<Gun>().fireTransform = fireTransform;
+                    }
+
+
+					//as soon as you grab, you can stop highlighting the item
+					//dehighlight
+					hitItemScript.Unhighlight();
+
+					hitItem = null;
+					hitItemScript = null;
+
+
                     //this should be only called once, so I'm moving it here
+                    //technically things in "Item" Layer should have item scripts but i'm just making sure
                     if (hit.transform.gameObject.GetComponent<Item>() != null)
                     {
 
                         //set working variables
                         stateChange = true;
-                        nextItem = hit.transform.gameObject;
-                        nextItemScript = nextItem.GetComponent<Item>();
+                        nextItem = hitItem;
+                        nextItemScript = hitItemScript;
 
                         //got yer hands out
                         if (inventory[inventoryIndex] == null)
                         {
-                                StartCoroutine(GrabItem(hit.transform.gameObject));
+                            StartCoroutine(GrabItem(hit.transform.gameObject));
 
                         }
                         else
@@ -172,6 +236,19 @@ public class Inventory2 : MonoBehaviour
                     }
 
                 }
+
+
+
+            }
+            //oneshot
+            //go from looking at something to nothing
+            else if(hitItem != null){
+
+                //dehighlight
+                hitItemScript.Unhighlight();
+
+                hitItem = null;
+                hitItemScript = null;
 
             }
 
@@ -478,9 +555,19 @@ public class Inventory2 : MonoBehaviour
             }
         }
 
+        //I want to compound the force with the player's own movement so it can fly farther when you run and jump and shit you know.
+        //cuz that's how physics works anyways
+        //so i'm going to make a new vector and add it in the addforce clause
+        //but i'm going to need a class that does this for me because i'm going to reference player displacement in gun script too hahahahahaha
+
+        Vector3 playerMovementMod = fpmScript.measuredDisplacement * 100;
+
+        Vector3 temp = (cameraTransform.forward * force) + playerMovementMod;
+
+        print(temp.magnitude);
 
         //throw the fucker
-        rigid.AddForce(cameraTransform.forward * force, ForceMode.Impulse);
+        rigid.AddForce((cameraTransform.forward * force) + playerMovementMod , ForceMode.Impulse);
 
         //keep your hands on it for a bit and then retract them to make it seem as if you are throwing it with your hands hahahahhahaha
         StartCoroutine(ThrowWithYourHands(0.2f));
