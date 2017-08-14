@@ -30,7 +30,7 @@ public class Inventory2 : MonoBehaviour
     [Header("Grab Raycast")]
 
     //Initial Grab Raycast Variables
-    public Transform cameraTransform;
+    public Transform lookTransform;
     public Transform fireTransform;
     public float grabRange = 4;
     private LayerMask grabLayerMask;
@@ -138,7 +138,7 @@ public class Inventory2 : MonoBehaviour
         if (stateChange == false)
         {
 
-            if (Physics.Raycast(cameraTransform.position, cameraTransform.forward, out hit, grabRange, grabLayerMask))
+            if (Physics.Raycast(lookTransform.position, lookTransform.forward, out hit, grabRange, grabLayerMask))
             {
 
                 //oneshot
@@ -178,9 +178,10 @@ public class Inventory2 : MonoBehaviour
                     if(hitItemScript.type == ItemType.Gun){
                         Gun hitItemGun = hitItem.GetComponent<Gun>();
                         hitItemGun.fireTransform = fireTransform;
-                        hitItemGun.bodyTransform = transform;
                         hitItemGun.fireTransformRotate = fireTransform.GetComponent<MouseRotate>();
                         hitItemGun.bodyTransformRotate = transform.GetComponent<MouseRotate>();
+                        hitItemGun.lookTransformRotate = lookTransform.GetComponent<MouseRotate>();
+                        hitItemGun.handsSway = handsTransform.GetComponent<Sway>();
                     }
 
 
@@ -567,12 +568,12 @@ public class Inventory2 : MonoBehaviour
 
         Vector3 playerMovementMod = fpmScript.measuredDisplacement * 100;
 
-        Vector3 temp = (cameraTransform.forward * force) + playerMovementMod;
+        Vector3 temp = (lookTransform.forward * force) + playerMovementMod;
 
         print(temp.magnitude);
 
         //throw the fucker
-        rigid.AddForce((cameraTransform.forward * force) + playerMovementMod , ForceMode.Impulse);
+        rigid.AddForce((lookTransform.forward * force) + playerMovementMod , ForceMode.Impulse);
 
         //keep your hands on it for a bit and then retract them to make it seem as if you are throwing it with your hands hahahahhahaha
         StartCoroutine(ThrowWithYourHands(0.2f));

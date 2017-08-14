@@ -11,6 +11,7 @@ using UnityEngine.UI;
 public class MouseRotate : MonoBehaviour {
 
     public bool canRotate;
+    public bool onlyOffset;
 
 public enum RotationAxes { MouseXAndY = 0, MouseX = 1, MouseY = 2 }
 public RotationAxes axes = RotationAxes.MouseXAndY;
@@ -82,6 +83,14 @@ void Update ()
                 transform.localRotation = originalRotation * yQuaternion;
             }
         }
+
+        if (onlyOffset){
+
+			Quaternion xQuaternion = Quaternion.AngleAxis(xOffset, Vector3.up);
+			Quaternion yQuaternion = Quaternion.AngleAxis(yOffset, -Vector3.right);
+
+			transform.localRotation = originalRotation * xQuaternion * yQuaternion;
+        }
 	
 }
 
@@ -92,7 +101,6 @@ void Start ()
 		GetComponent<Rigidbody>().freezeRotation = true;
 	originalRotation = transform.localRotation;
 
-        canRotate = true;
 }
 
 public static float ClampAngle (float angle, float min, float max)

@@ -14,6 +14,9 @@ public class Sway : MonoBehaviour
 
 	private Vector3 swayOffset;
 
+    public float zOffset;
+
+
 
 	// Use this for initialization
 	void Start()
@@ -28,13 +31,18 @@ public class Sway : MonoBehaviour
 	void Update()
 	{
 
-		xSway = Input.GetAxis("Mouse X") * Time.deltaTime * moveAmount;
-		ySway = Input.GetAxis("Mouse Y") * Time.deltaTime * moveAmount;
+		xSway = Input.GetAxis("Mouse X") * 0.025f * moveAmount;
+		ySway = Input.GetAxis("Mouse Y") * 0.025f * moveAmount;
 
 		Vector3 swayOffsetTarget = new Vector3(xSway, ySway, 0);
 		swayOffset = Vector3.Lerp(swayOffset, swayOffsetTarget, Time.deltaTime * moveSpeed);
 
-		transform.localPosition = basePosition + swayOffset;
+
+        Vector3 offset = new Vector3(0, 0, zOffset);
+
+
+        transform.localPosition = basePosition + swayOffset + offset;
+
 
 	}
 

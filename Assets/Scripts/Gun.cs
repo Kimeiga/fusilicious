@@ -8,9 +8,10 @@ public class Gun : MonoBehaviour
     private Item itemScript;
     private AudioSource fireAudioSource;
     public Transform fireTransform;
-    public Transform bodyTransform;
     public MouseRotate fireTransformRotate;
     public MouseRotate bodyTransformRotate;
+    public MouseRotate lookTransformRotate;
+    public Sway handsSway;
 
 
     //gun stats
@@ -50,11 +51,26 @@ public class Gun : MonoBehaviour
     public float recoilModX = 3;
     public float recoilModY = 3;
 
-    public float xKick = 10;
-    public float yKick = 10;
+    public float xKick;
+    public float yKick;
 
-    public float xOffset;
-    public float yOffset;
+    public float kickTween;
+
+    public float kickMod = 2;
+
+    public float xRecoilOffset; //smooth recoil pattern from the whole spray
+    public float yRecoilOffset;
+
+    public float recoilTween;
+
+    public float xKickOffset; //oneshot kicks from each bullet
+    public float yKickOffset;
+
+    public AnimationCurve kickIntensity;
+
+    public float kickback;
+    public float kickbackAcc;
+
 
     // Use this for initialization
     void Start()
@@ -73,6 +89,7 @@ public class Gun : MonoBehaviour
 
         //Calculate current recoil increment
         currentRecoilIncrement = (1.0f / maxAmmo);
+
     }
 
     // Update is called once per frame
@@ -105,8 +122,18 @@ public class Gun : MonoBehaviour
 
 					if (Time.time > nextFire)
 					{
+
+						Vector3 recoilOffset = new Vector3(xRecoilOffset * 0.5f, yRecoilOffset * 0.5f, 0);
+						
+
+                        Quaternion xQuaternion = Quaternion.AngleAxis(recoilOffset.x, Vector3.up);
+                        Quaternion yQuaternion = Quaternion.AngleAxis(recoilOffset.y, -Vector3.right);
+
+                        Quaternion shotDirection = fireTransform.rotation * xQuaternion * yQuaternion;
+
+
 						//fire
-						if (Physics.Raycast(fireTransform.position, fireTransform.forward, out hit, range, fireMask))
+                        if (Physics.Raycast(fireTransform.position, shotDirection * Vector3.forward, out hit, range, fireMask))
 						{
 							//you can use this for reflecting guns soon! :D
 							//Vector3 incomingVec = hit.point - transform.position;
@@ -154,11 +181,28 @@ public class Gun : MonoBehaviour
 
                         LeanTween.cancelAll();
 
-                        //xOffset += xKick;
-                        //yOffset += yKick;
+                        xRecoilOffset += xRecoil.Evaluate(currentRecoil) * recoilModX;
+                        yRecoilOffset += yRecoil.Evaluate(currentRecoil) * recoilModY;
 
-                        xOffset += xRecoil.Evaluate(currentRecoil) * recoilModX;
-                        yOffset += yRecoil.Evaluate(currentRecoil) * recoilModY;
+                        //Vector3 recoilDer = new Vector3(xRecoil.Evaluate(currentRecoil) * recoilModX, yRecoil.Evaluate(currentRecoil) * recoilModY, 0);
+
+                        ////recoilDer = recoilDer.normalized; //the normalize instantaneous direction of the recoil at any time
+
+                        //recoilDer *= kickMod;
+
+                        //xKick = recoilDer.x;
+                        //yKick = recoilDer.y;
+
+                        Vector3 kickDir = new Vector3(xRecoilOffset, yRecoilOffset, 0);
+                        kickDir = kickDir.normalized;
+                        kickDir *= kickMod;
+                        //kickDir *= kickIntensity.Evaluate(currentRecoil);
+
+                        xKick = kickDir.x;
+                        yKick = kickDir.y;
+
+                        kickbackAcc -= kickback;
+
 
 					}
 
@@ -182,22 +226,41 @@ public class Gun : MonoBehaviour
 
                 currentRecoil = 0;
 
-				LeanTween.value(gameObject, xOffset, 0, 0.9f).setEase(LeanTweenType.easeOutQuint).setOnUpdate((float val) => { xOffset = val; });
-				LeanTween.value(gameObject, yOffset, 0, 0.9f).setEase(LeanTweenType.easeOutQuint).setOnUpdate((float val) => { yOffset = val; });
+				LeanTween.value(gameObject, yRecoilOffset, 0, recoilTween).setEase(LeanTweenType.easeOutQuint).setOnUpdate((float val) => { yRecoilOffset = val; });
+                LeanTween.value(gameObject, xRecoilOffset, 0, recoilTween).setEase(LeanTweenType.easeOutQuint).setOnUpdate((float val) => { xRecoilOffset = val; });
 
                 firingAux = false;
             }
 
 
 
+            //LeanTween.value(gameObject, xKick, 0, 0.3f).setOnUpdate((float val) => { xKick = val; });
+            //LeanTween.value(gameObject, yKick, 0, 0.3f).setOnUpdate((float val) => { yKick = val; });
 
 
 
-			bodyTransformRotate.xOffset = xOffset;
-			fireTransformRotate.yOffset = yOffset;
+            bodyTransformRotate.xOffset = xRecoilOffset / 2;
+            fireTransformRotate.yOffset = yRecoilOffset / 2;
+
+            lookTransformRotate.xOffset = xKick;
+            lookTransformRotate.yOffset = yKick;
+
+
+            handsSway.zOffset = kickbackAcc;
+
+			//xKick = Mathf.Lerp(xKick, 0, kickLerp);
+			//yKick = Mathf.Lerp(yKick, 0, kickLerp);
+
+            LeanTween.value(gameObject, xKick, 0, kickTween).setOnUpdate((float val) => { xKick = val; });
+            LeanTween.value(gameObject, yKick, 0, kickTween).setOnUpdate((float val) => { yKick = val; });
+
+            LeanTween.value(gameObject, kickbackAcc, 0, kickTween).setOnUpdate((float val) => { kickbackAcc = val; });
 
 
 
+            if(Input.GetButtonDown("Reload")){
+                ammo = maxAmmo;
+            }
 
 
 
