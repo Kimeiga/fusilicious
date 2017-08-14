@@ -28,6 +28,9 @@ public float rotationY = 0F;
 
 Quaternion originalRotation;
 
+    public float xOffset;
+    public float yOffset;
+
 void Update ()
 {
 
@@ -56,8 +59,8 @@ void Update ()
                 rotationY = ClampAngle(rotationY, minimumY, maximumY);
                 
 
-                Quaternion xQuaternion = Quaternion.AngleAxis(rotationX, Vector3.up);
-                Quaternion yQuaternion = Quaternion.AngleAxis(rotationY, -Vector3.right);
+                Quaternion xQuaternion = Quaternion.AngleAxis(rotationX + xOffset, Vector3.up);
+                Quaternion yQuaternion = Quaternion.AngleAxis(rotationY + yOffset, -Vector3.right);
 
                 transform.localRotation = originalRotation * xQuaternion * yQuaternion;
             }
@@ -66,15 +69,16 @@ void Update ()
                 rotationX += Input.GetAxis("Mouse X") * sensitivityX;
                 rotationX = ClampAngle(rotationX, minimumX, maximumX);
 
-                Quaternion xQuaternion = Quaternion.AngleAxis(rotationX, Vector3.up);
+                Quaternion xQuaternion = Quaternion.AngleAxis(rotationX + xOffset, Vector3.up);
                 transform.localRotation = originalRotation * xQuaternion;
+
             }
             else
             {
                 rotationY += Input.GetAxis("Mouse Y") * sensitivityY;
                 rotationY = ClampAngle(rotationY, minimumY, maximumY);
 
-                Quaternion yQuaternion = Quaternion.AngleAxis(rotationY, -Vector3.right);
+                Quaternion yQuaternion = Quaternion.AngleAxis(rotationY + yOffset, -Vector3.right);
                 transform.localRotation = originalRotation * yQuaternion;
             }
         }

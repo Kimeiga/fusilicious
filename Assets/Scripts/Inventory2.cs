@@ -176,8 +176,13 @@ public class Inventory2 : MonoBehaviour
 
                     //set the fire transform if it's a gun
                     if(hitItemScript.type == ItemType.Gun){
-                        hitItem.GetComponent<Gun>().fireTransform = fireTransform;
+                        Gun hitItemGun = hitItem.GetComponent<Gun>();
+                        hitItemGun.fireTransform = fireTransform;
+                        hitItemGun.bodyTransform = transform;
+                        hitItemGun.fireTransformRotate = fireTransform.GetComponent<MouseRotate>();
+                        hitItemGun.bodyTransformRotate = transform.GetComponent<MouseRotate>();
                     }
+
 
 
 					//as soon as you grab, you can stop highlighting the item
