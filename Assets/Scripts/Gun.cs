@@ -196,7 +196,7 @@ public class Gun : MonoBehaviour
                         Vector3 kickDir = new Vector3(xRecoilOffset, yRecoilOffset, 0);
                         kickDir = kickDir.normalized;
                         kickDir *= kickMod;
-                        //kickDir *= kickIntensity.Evaluate(currentRecoil);
+                        kickDir *= kickIntensity.Evaluate(currentRecoil);
 
                         xKick = kickDir.x;
                         yKick = kickDir.y;

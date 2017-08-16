@@ -36,6 +36,8 @@ public class VaneScript : MonoBehaviour {
         }
         else{
 
+            print("K");
+
             //if it's zero just make it disappear
             vane.SetActive(false);
         }

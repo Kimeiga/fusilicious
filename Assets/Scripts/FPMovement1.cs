@@ -62,11 +62,8 @@ public class FPMovement1 : MonoBehaviour {
 	
 	//working variables for crouching mechanism
 	private bool recoilingFromLand = false;
-	private float crouchingSpeedMod = 1;
 	private float targetHeight;
-    private float targetHeightPrevious;
 
-    private bool crouchAux = false;
 
 
 	[Space(10)]
@@ -96,8 +93,8 @@ public class FPMovement1 : MonoBehaviour {
 	private bool dontBounceAssist = false;
 
 
-	// Use this for initialization
-	void Start () {
+    // Use this for initialization
+    void Start () {
 
 		stepOffsetInitial = characterController.stepOffset;
 
@@ -112,13 +109,11 @@ public class FPMovement1 : MonoBehaviour {
 
 		meshTransformOriginalScale = meshTransform.localScale;
 
-        //LeanTween.value(gameObject, updateValueExampleCallback, characterController.height, crouchHeight, 1f).setEase(LeanTweenType.easeOutElastic);
 	}
 	
 	void Update()
 	{
 
-        targetHeightPrevious = targetHeight;
 
         if ((canMove && Input.GetButton("Crouch") && !jumpedFromStand) 
             || (characterController.collisionFlags & CollisionFlags.Above) != 0 && characterController.height < standHeight)
@@ -388,14 +383,14 @@ public class FPMovement1 : MonoBehaviour {
 
 
 		//If you are recoiling from a landing, than crouch faster
-		if (recoilingFromLand)
-		{
-			crouchingSpeedMod = springMod;
-		}
-		else
-		{
-			crouchingSpeedMod = 1;
-		}
+		//if (recoilingFromLand)
+		//{
+		//	crouchingSpeedMod = springMod;
+		//}
+		//else
+		//{
+		//	crouchingSpeedMod = 1;
+		//}
 
 
 		//prevent increasing in height if there is something over my head
@@ -414,16 +409,6 @@ public class FPMovement1 : MonoBehaviour {
 
         //Lerp the controller height to the target height
         //characterController.height = iTween.FloatUpdate(characterController.height, targetHeight, crouchingSpeed * crouchingSpeedMod);
-
-
-        /*
-        if(targetHeightPrevious != targetHeight){
-
-            print("O:");
-            LeanTween.value(gameObject, characterController.height, targetHeight, 1);
-
-        }
-        */
 
         characterController.height = targetHeight;
 

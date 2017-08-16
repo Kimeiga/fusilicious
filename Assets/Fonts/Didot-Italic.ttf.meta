@@ -1,0 +1,21 @@
+fileFormatVersion: 2
+guid: 84fb5118c8d8248508daeb81793ec570
+timeCreated: 1502748523
+licenseType: Free
+TrueTypeFontImporter:
+  serializedVersion: 4
+  fontSize: 16
+  forceTextureCase: -2
+  characterSpacing: 0
+  characterPadding: 1
+  includeFontData: 1
+  fontName: Didot
+  fontNames:
+  - Didot
+  fallbackFontReferences: []
+  customCharacters: 
+  fontRenderingMode: 0
+  ascentCalculationMode: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

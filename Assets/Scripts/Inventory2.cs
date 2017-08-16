@@ -8,6 +8,8 @@ using DG.Tweening;
 public class Inventory2 : MonoBehaviour
 {
 
+
+
     //Poder Variables
     private bool stateChange;
 
@@ -71,11 +73,75 @@ public class Inventory2 : MonoBehaviour
     [Header("Inventory")]
 
     //Inventory Variables
-    public GameObject[] inventory;
+    public GameObject[] inventorySub;
+
+    public GameObject[] inventory{
+		get
+		{
+			return inventorySub;
+		}
+		set
+		{
+			inventorySub = value;
+
+            if (nextItem)
+			{
+
+                if (nextItemScript.type == ItemType.Gun)
+				{
+					ammoPanel.SetActive(true);
+				}
+				else
+				{
+					ammoPanel.SetActive(false);
+				}
+			}
+			else
+			{
+				ammoPanel.SetActive(false);
+			}
+
+
+
+		}
+    }
+
     public int maxInventorySize = 8;
 
-    public int inventoryIndex;
+    public int inventoryInd = 1;
     public int startingInventoryIndex = 1;
+
+	public int inventoryIndex
+	{
+		get
+		{
+            return inventoryInd;
+		}
+		set
+		{
+
+            inventoryInd = value;
+
+            if(inventory[value]){
+
+				if (inventory[value].GetComponent<Item>().type == ItemType.Gun)
+				{
+					ammoPanel.SetActive(true);
+				}
+				else
+				{
+					ammoPanel.SetActive(false);
+				}
+            }
+			else
+			{
+				ammoPanel.SetActive(false);
+			}
+
+
+
+		}
+	}
 
 
 	[Space(10)]
@@ -88,6 +154,7 @@ public class Inventory2 : MonoBehaviour
 
 
 
+    public GameObject ammoPanel;
 
 
 
@@ -568,9 +635,6 @@ public class Inventory2 : MonoBehaviour
 
         Vector3 playerMovementMod = fpmScript.measuredDisplacement * 100;
 
-        Vector3 temp = (lookTransform.forward * force) + playerMovementMod;
-
-        print(temp.magnitude);
 
         //throw the fucker
         rigid.AddForce((lookTransform.forward * force) + playerMovementMod , ForceMode.Impulse);
