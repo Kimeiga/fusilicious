@@ -184,15 +184,6 @@ public class Gun : MonoBehaviour
                         xRecoilOffset += xRecoil.Evaluate(currentRecoil) * recoilModX;
                         yRecoilOffset += yRecoil.Evaluate(currentRecoil) * recoilModY;
 
-                        //Vector3 recoilDer = new Vector3(xRecoil.Evaluate(currentRecoil) * recoilModX, yRecoil.Evaluate(currentRecoil) * recoilModY, 0);
-
-                        ////recoilDer = recoilDer.normalized; //the normalize instantaneous direction of the recoil at any time
-
-                        //recoilDer *= kickMod;
-
-                        //xKick = recoilDer.x;
-                        //yKick = recoilDer.y;
-
                         Vector3 kickDir = new Vector3(xRecoilOffset, yRecoilOffset, 0);
                         kickDir = kickDir.normalized;
                         kickDir *= kickMod;
@@ -226,16 +217,13 @@ public class Gun : MonoBehaviour
 
                 currentRecoil = 0;
 
-				LeanTween.value(gameObject, yRecoilOffset, 0, recoilTween).setEase(LeanTweenType.easeOutQuint).setOnUpdate((float val) => { yRecoilOffset = val; });
-                LeanTween.value(gameObject, xRecoilOffset, 0, recoilTween).setEase(LeanTweenType.easeOutQuint).setOnUpdate((float val) => { xRecoilOffset = val; });
+				LeanTween.value(gameObject, yRecoilOffset, 0, recoilTween).setEase(LeanTweenType.easeOutQuart).setOnUpdate((float val) => { yRecoilOffset = val; });
+                LeanTween.value(gameObject, xRecoilOffset, 0, recoilTween).setEase(LeanTweenType.easeOutQuart).setOnUpdate((float val) => { xRecoilOffset = val; });
 
                 firingAux = false;
             }
 
 
-
-            //LeanTween.value(gameObject, xKick, 0, 0.3f).setOnUpdate((float val) => { xKick = val; });
-            //LeanTween.value(gameObject, yKick, 0, 0.3f).setOnUpdate((float val) => { yKick = val; });
 
 
 
@@ -248,8 +236,6 @@ public class Gun : MonoBehaviour
 
             handsSway.zOffset = kickbackAcc;
 
-			//xKick = Mathf.Lerp(xKick, 0, kickLerp);
-			//yKick = Mathf.Lerp(yKick, 0, kickLerp);
 
             LeanTween.value(gameObject, xKick, 0, kickTween).setOnUpdate((float val) => { xKick = val; });
             LeanTween.value(gameObject, yKick, 0, kickTween).setOnUpdate((float val) => { yKick = val; });

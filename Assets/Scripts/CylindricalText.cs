@@ -5,13 +5,13 @@ using System.Collections;
 namespace TMPro.Examples
 {
 
-    public class CurveText : MonoBehaviour
+    public class CylindricalText : MonoBehaviour
     {
 
         private TMP_Text m_TextComponent;
 
-        public AnimationCurve VertexCurve = new AnimationCurve(new Keyframe(0, 0), new Keyframe(0.5f, 2), new Keyframe(1, 0f));
-        public float CurveScale = 1.0f;
+        public float radius;
+
 
         void Awake()
         {
@@ -42,29 +42,24 @@ namespace TMPro.Examples
         /// <returns></returns>
         IEnumerator WarpText()
         {
-            VertexCurve.preWrapMode = WrapMode.Clamp;
-            VertexCurve.postWrapMode = WrapMode.Clamp;
-
-            //Mesh mesh = m_TextComponent.textInfo.meshInfo[0].mesh;
+            
 
             Vector3[] vertices;
             Matrix4x4 matrix;
 
             m_TextComponent.havePropertiesChanged = true; // Need to force the TextMeshPro Object to be updated.
-            CurveScale *= 10;
-            float old_CurveScale = CurveScale;
-            AnimationCurve old_curve = CopyAnimationCurve(VertexCurve);
+
+
+
 
             while (true)
             {
-                if (!m_TextComponent.havePropertiesChanged && old_CurveScale == CurveScale && old_curve.keys[1].value == VertexCurve.keys[1].value)
+                if (!m_TextComponent.havePropertiesChanged)
                 {
                     yield return null;
                     continue;
                 }
 
-                old_CurveScale = CurveScale;
-                old_curve = CopyAnimationCurve(VertexCurve);
 
                 m_TextComponent.ForceMeshUpdate(); // Generate the mesh and populate the textInfo with data we can use and manipulate.
 
@@ -74,11 +69,11 @@ namespace TMPro.Examples
 
                 if (characterCount == 0) continue;
 
-                //vertices = textInfo.meshInfo[0].vertices;
-                //int lastVertexIndex = textInfo.characterInfo[characterCount - 1].vertexIndex;
 
                 float boundsMinX = m_TextComponent.bounds.min.x;  //textInfo.meshInfo[0].mesh.bounds.min.x;
                 float boundsMaxX = m_TextComponent.bounds.max.x;  //textInfo.meshInfo[0].mesh.bounds.max.x;
+
+                float totalWidthOfText = (boundsMaxX - boundsMinX);
 
 
 
@@ -96,7 +91,8 @@ namespace TMPro.Examples
 
                     // Compute the baseline mid point for each character
                     Vector3 offsetToMidBaseline = new Vector2((vertices[vertexIndex + 0].x + vertices[vertexIndex + 2].x) / 2, textInfo.characterInfo[i].baseLine);
-                    //float offsetY = VertexCurve.Evaluate((float)i / characterCount + loopCount / 50f); // Random.Range(-0.25f, 0.25f);
+
+
 
                     // Apply offset to adjust our pivot point.
                     vertices[vertexIndex + 0] += -offsetToMidBaseline;
@@ -104,21 +100,29 @@ namespace TMPro.Examples
                     vertices[vertexIndex + 2] += -offsetToMidBaseline;
                     vertices[vertexIndex + 3] += -offsetToMidBaseline;
 
-                    // Compute the angle of rotation for each character based on the animation curve
-                    float x0 = (offsetToMidBaseline.x - boundsMinX) / (boundsMaxX - boundsMinX); // Character's position relative to the bounds of the mesh.
-                    float x1 = x0 + 0.0001f;
-                    float y0 = VertexCurve.Evaluate(x0) * CurveScale;
-                    float y1 = VertexCurve.Evaluate(x1) * CurveScale;
 
-                    Vector3 horizontal = new Vector3(1, 0, 0);
-                    //Vector3 normal = new Vector3(-(y1 - y0), (x1 * (boundsMaxX - boundsMinX) + boundsMinX) - offsetToMidBaseline.x, 0);
-                    Vector3 tangent = new Vector3(x1 * (boundsMaxX - boundsMinX) + boundsMinX,0, y1) - new Vector3(offsetToMidBaseline.x,0, y0);
 
-                    float dot = Mathf.Acos(Vector3.Dot(horizontal, tangent.normalized)) * 57.2957795f;
-                    Vector3 cross = Vector3.Cross(horizontal, tangent);
-                    float angle = cross.y > 0 ? dot : 360 - dot;
+                    //need to find out the arc length of each character's position on the circle
 
-                    matrix = Matrix4x4.TRS(new Vector3(0, 0,y0), Quaternion.Euler(0, angle, 0), Vector3.one);
+                    float charPos = (offsetToMidBaseline.x - boundsMinX);
+
+                    float midpoint = (boundsMaxX - boundsMinX) * 0.5f;
+
+                    float offsetAngle = (((3.14f * radius) - totalWidthOfText) * 0.5f) / radius;
+
+
+                    float angleToChar = charPos / radius; //this is in radians
+
+                    angleToChar += offsetAngle;
+
+                    float xPosOfChar = radius * Mathf.Cos(angleToChar);
+                    float yPosOfChar = radius * Mathf.Sin(angleToChar);
+
+
+                    float angleToCharDeg = angleToChar * 180 / 6.283f;
+
+                    matrix = Matrix4x4.TRS( new Vector3( midpoint - charPos ,0,0) + new Vector3(-xPosOfChar,0,-yPosOfChar) , Quaternion.Euler(0,90 - (2*angleToCharDeg),0), Vector3.one);
+
 
                     vertices[vertexIndex + 0] = matrix.MultiplyPoint3x4(vertices[vertexIndex + 0]);
                     vertices[vertexIndex + 1] = matrix.MultiplyPoint3x4(vertices[vertexIndex + 1]);

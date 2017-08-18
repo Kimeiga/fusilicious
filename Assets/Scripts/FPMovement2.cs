@@ -504,7 +504,11 @@ public class FPMovement2 : MonoBehaviour {
 		if (other.gameObject.tag == "Level" && !grounded)
 		{
 
-            wallHang |= (canMove && Input.GetButton("Wall Hang"));
+            if (canMove && Input.GetButton("Wall Hang")){
+                wallHang = true;
+
+			}
+
         }
 	}
 

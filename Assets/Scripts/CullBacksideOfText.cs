@@ -5,6 +5,8 @@ using UnityEngine;
 
 public class CullBacksideOfText : MonoBehaviour {
 
+
+
 	void Awake()
 	{
         TextMeshPro textObject = gameObject.GetComponent<TextMeshPro>();

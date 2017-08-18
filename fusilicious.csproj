@@ -156,7 +156,6 @@
     <Compile Include="Assets\LeanTween\Examples\Scripts\PathSplines.cs" />
     <Compile Include="Assets\LeanTween\Examples\Scripts\TestingAllCS.cs" />
     <Compile Include="Assets\LeanTween\Examples\Scripts\TestingUnitTests.cs" />
-    <Compile Include="Assets\License.cs" />
     <Compile Include="Assets\SabreCSG\Scripts\Brushes\PrimitiveBrush.cs" />
     <Compile Include="Assets\SabreCSG\Scripts\CSGModel.cs" />
     <Compile Include="Assets\SabreCSG\Scripts\CSGModelBase.cs" />
@@ -219,13 +218,14 @@
     <Compile Include="Assets\SabreCSG\Scripts\UI\Toolbar.cs" />
     <Compile Include="Assets\SabreCSG\Scripts\UI\VertexColorWindow.cs" />
     <Compile Include="Assets\SabreCSG\Scripts\UpdateUtility.cs" />
-    <Compile Include="Assets\Scripts\AddTextToTexture.cs" />
+    <Compile Include="Assets\Scripts\BunnyMovement.cs" />
     <Compile Include="Assets\Scripts\Crosshair.cs" />
     <Compile Include="Assets\Scripts\CullBacksideOfText.cs" />
     <Compile Include="Assets\Scripts\CurveText.cs" />
     <Compile Include="Assets\Scripts\CylindricalText.cs" />
     <Compile Include="Assets\Scripts\FPMovement1.cs" />
     <Compile Include="Assets\Scripts\FPMovement2.cs" />
+    <Compile Include="Assets\Scripts\FPMovement3.cs" />
     <Compile Include="Assets\Scripts\FPSCounter.cs" />
     <Compile Include="Assets\Scripts\GUIInterface.cs" />
     <Compile Include="Assets\Scripts\GameManager.cs" />
@@ -240,7 +240,6 @@
     <Compile Include="Assets\Scripts\Player.cs" />
     <Compile Include="Assets\Scripts\Selfdestruct.cs" />
     <Compile Include="Assets\Scripts\Sway.cs" />
-    <Compile Include="Assets\Scripts\TextToTexture.cs" />
     <Compile Include="Assets\Scripts\VaneScript.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples\Scripts\Benchmark01.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples\Scripts\Benchmark01_UGUI.cs" />
@@ -301,7 +300,10 @@
     <None Include="Assets\SabreCSG\Shaders\UINoAlpha.shader" />
     <None Include="Assets\SabreCSG\Shaders\VertexTinted.shader" />
     <None Include="Assets\Shaders\FrostedGlass.shader" />
-    <None Include="Assets\Shaders\OutlineDiffuse.shader" />
+    <None Include="Assets\Standard Assets\Characters\FirstPersonCharacter\FirstPersonCharacterGuidelines.txt" />
+    <None Include="Assets\Standard Assets\Characters\RollerBall\RollerBallGuidelines.txt" />
+    <None Include="Assets\Standard Assets\Characters\ThirdPersonCharacter\ThirdPersonCharacterGuidelines.txt" />
+    <None Include="Assets\Standard Assets\CrossPlatformInput\CrossPlatformInputGuidelines.txt" />
     <None Include="Assets\TextMesh Pro\Fonts\Anton OFL.txt" />
     <None Include="Assets\TextMesh Pro\Fonts\Bangers - OFL.txt" />
     <None Include="Assets\TextMesh Pro\Fonts\LiberationSans - OFL.txt" />

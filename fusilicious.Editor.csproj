@@ -90,6 +90,9 @@
     <Reference Include="Assembly-UnityScript">
       <HintPath>Library/ScriptAssemblies/Assembly-UnityScript.dll</HintPath>
     </Reference>
+    <Reference Include="Assembly-CSharp-Editor-firstpass">
+      <HintPath>Library/ScriptAssemblies/Assembly-CSharp-Editor-firstpass.dll</HintPath>
+    </Reference>
     <Reference Include="UnityEngine.Analytics">
       <HintPath>/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/UnityAnalytics/UnityEngine.Analytics.dll</HintPath>
     </Reference>
@@ -184,6 +187,10 @@
       <Project>{A3410154-BDB8-DA4E-20D5-BC18E2EC7AAA}</Project>
       <Name>fusilicious</Name>
     </ProjectReference>
+    <ProjectReference Include="fusilicious.Editor.Plugins.csproj">
+      <Project>{3AFDF1DD-5616-246F-7159-845594F4E285}</Project>
+      <Name>fusilicious.Editor.Plugins</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\LeanTween\Editor\LeanTweenDocumentationEditor.cs" />
@@ -220,7 +227,10 @@
     <None Include="Assets\SabreCSG\Shaders\UINoAlpha.shader" />
     <None Include="Assets\SabreCSG\Shaders\VertexTinted.shader" />
     <None Include="Assets\Shaders\FrostedGlass.shader" />
-    <None Include="Assets\Shaders\OutlineDiffuse.shader" />
+    <None Include="Assets\Standard Assets\Characters\FirstPersonCharacter\FirstPersonCharacterGuidelines.txt" />
+    <None Include="Assets\Standard Assets\Characters\RollerBall\RollerBallGuidelines.txt" />
+    <None Include="Assets\Standard Assets\Characters\ThirdPersonCharacter\ThirdPersonCharacterGuidelines.txt" />
+    <None Include="Assets\Standard Assets\CrossPlatformInput\CrossPlatformInputGuidelines.txt" />
     <None Include="Assets\TextMesh Pro\Fonts\Anton OFL.txt" />
     <None Include="Assets\TextMesh Pro\Fonts\Bangers - OFL.txt" />
     <None Include="Assets\TextMesh Pro\Fonts\LiberationSans - OFL.txt" />

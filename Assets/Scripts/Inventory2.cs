@@ -66,7 +66,7 @@ public class Inventory2 : MonoBehaviour
 	[Header("Player Properties")]
 
     public Collider playerCollider;
-    private FPMovement2 fpmScript;
+    private FPMovement3 fpmScript;
 
 
     [Space(10)]
@@ -163,7 +163,7 @@ public class Inventory2 : MonoBehaviour
     {
 
         //set fpmscript for enhanced drop mechanic
-        fpmScript = GetComponent<FPMovement2>();
+        fpmScript = GetComponent<FPMovement3>();
 
 
         inventory = new GameObject[maxInventorySize];
@@ -616,17 +616,7 @@ public class Inventory2 : MonoBehaviour
 
 
 
-        //put item on back on Item Layer
-        prevItem.layer = LayerMask.NameToLayer("Item");
-        Transform[] childTransforms = prevItem.GetComponentsInChildren<Transform>();
-        foreach (Transform trans in childTransforms)
-        {
-            if (trans.gameObject != rightHandTransform.gameObject && trans.gameObject != leftHandTransform.gameObject){
-                if (System.Array.IndexOf(rightHandChildren,trans) == -1 && System.Array.IndexOf(leftHandChildren, trans) == -1){
-                    trans.gameObject.layer = LayerMask.NameToLayer("Item");    
-                }
-            }
-        }
+
 
         //I want to compound the force with the player's own movement so it can fly farther when you run and jump and shit you know.
         //cuz that's how physics works anyways
@@ -654,6 +644,20 @@ public class Inventory2 : MonoBehaviour
 	IEnumerator ThrowWithYourHands(float holdTime)
 	{
 		yield return new WaitForSeconds(holdTime);
+
+		//put item on back on Item Layer
+		prevItem.layer = LayerMask.NameToLayer("Item");
+		Transform[] childTransforms = prevItem.GetComponentsInChildren<Transform>();
+		foreach (Transform trans in childTransforms)
+		{
+			if (trans.gameObject != rightHandTransform.gameObject && trans.gameObject != leftHandTransform.gameObject)
+			{
+				if (System.Array.IndexOf(rightHandChildren, trans) == -1 && System.Array.IndexOf(leftHandChildren, trans) == -1)
+				{
+					trans.gameObject.layer = LayerMask.NameToLayer("Item");
+				}
+			}
+		}
 
 		leftHandTransform.parent = handsTransform;
 		rightHandTransform.parent = handsTransform;
