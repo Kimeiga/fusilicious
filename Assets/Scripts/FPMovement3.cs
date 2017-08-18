@@ -6,9 +6,20 @@ public class FPMovement3 : MonoBehaviour {
 
     public bool gliding = false;
     float glideSpeed;
+    public float driftBonus = 0.02f;
+    public float driftCap = 1.5f;
+    public float driftDecay = 0.01f;
+    public float driftRadius = 2;
+
+
     public MouseRotate bodyMouseRotate;
     public MouseRotate fireMouseRotate;
     public float turnSpeed = 2;
+    Quaternion originalRotation;
+
+
+    float glideSpeedNew;
+    float turnSpeedNew;
 
 	[Header("Base Variables")]
 	public CharacterController characterController;
@@ -20,8 +31,8 @@ public class FPMovement3 : MonoBehaviour {
 	public float runSpeed = 5;
 	public float walkSpeed = 4;
 	public float crouchSpeed = 3;
-	private float speed;
-	private bool jumpedFromStand = false;
+	public float speed;
+	public bool jumpedFromStand = false;
 
 	[Space(10)]
 
@@ -113,6 +124,7 @@ public class FPMovement3 : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 
+
         //initialize last position
         lastPosition = Vector3.zero;
 
@@ -140,19 +152,35 @@ public class FPMovement3 : MonoBehaviour {
             if (gliding == false){
 
 				gliding = true;
-                bodyMouseRotate.canRotate = false;
+
+                //bodyMouseRotate.canRotate = false;
+                bodyMouseRotate.enabled = false;
+
                 fireMouseRotate.axes = MouseRotate.RotationAxes.MouseXAndY;
 
+
+				originalRotation = transform.localRotation;
+
                 glideSpeed = speed;
+
             }
             else{
 
                 gliding = false;
-				bodyMouseRotate.canRotate = true;
+				//bodyMouseRotate.canRotate = true;
+                bodyMouseRotate.enabled = true;
+                bodyMouseRotate.originalRotation = transform.localRotation;
+                bodyMouseRotate.rotationX = fireMouseRotate.rotationX + fireMouseRotate.turnOffset;
+
 				fireMouseRotate.axes = MouseRotate.RotationAxes.MouseY;
                 fireMouseRotate.rotationX = 0;
+                fireMouseRotate.turnOffset = 0;
             }
 
+        }
+
+        if(grounded){
+            jumpedFromStand = false;
         }
 
 
@@ -402,37 +430,68 @@ public class FPMovement3 : MonoBehaviour {
 
                 //rotate wishdir of movement with horizontal keys
 
-                float glideSpeedNew;
-                float turnSpeedNew;
 
-                if(Input.GetButton("Tuck")){
-                    glideSpeedNew = glideSpeed * 1.5f;
-                    turnSpeedNew = turnSpeed * 0.5f;
+
+
+
+				turnSpeedNew = turnSpeed;
+
+                float driftRadiusMod = 1;
+
+				if (Input.GetButton("Tuck"))
+				{
+					driftRadiusMod = 1.3f;
+				}
+				else if (Input.GetButton("Carve"))
+				{
+                    driftRadiusMod = 0.7f;
+				}
+
+
+                glideSpeed += driftBonus * Mathf.Abs(Input.GetAxis("Horizontal")) / driftRadiusMod;
+
+
+                if(Input.GetAxis("Horizontal") == 0){
+                    glideSpeed -= driftDecay;
                 }
-                else if(Input.GetButton("Carve")){
-                    glideSpeedNew = glideSpeed * 0.5f;
-                    turnSpeedNew = turnSpeed * 1.5f;
-                }
-                else{
-                    glideSpeedNew = glideSpeed;
-                    turnSpeedNew = turnSpeed;
-                }
+
+
+                glideSpeed = Mathf.Clamp(glideSpeed, runSpeed, driftCap * runSpeed);
+
+                float turnMax = glideSpeed / (driftRadius * driftRadiusMod);
+
+
+                float turn = Input.GetAxis("Horizontal") * turnMax;
+
+                float turnDeg = turn;
+
+                print(glideSpeed);
+
+				
+
+                wishDir = Quaternion.AngleAxis(turnDeg, Vector3.up) * wishDir;
 
 
 
-                float turn = Input.GetAxis("Horizontal") * turnSpeedNew;
-
-                wishDir = Quaternion.AngleAxis(turn, Vector3.up) * wishDir;
 
 
-                bodyMouseRotate.glideTurn = turn;
+                transform.localRotation = Quaternion.AngleAxis(turnDeg, Vector3.up) * transform.localRotation;
+
+                fireMouseRotate.turnOffset -= turnDeg;
+
+                //Quaternion lookAtDir = Quaternion.LookRotation(transform.TransformDirection(wishDir));
+
+                //transform.rotation = lookAtDir;
+
+
+                //bodyMouseRotate.glideTurn += turn;
 
 				
 
 
 
-                moveDir.x = wishDir.x * glideSpeedNew;
-                moveDir.z = wishDir.z * glideSpeedNew;
+                moveDir.x = wishDir.x * glideSpeed;
+                moveDir.z = wishDir.z * glideSpeed;
 
 			}
 
@@ -552,13 +611,17 @@ public class FPMovement3 : MonoBehaviour {
 	void OnTriggerStay(Collider other)
 	{
 
-		if (other.gameObject.tag == "Level" && !grounded)
+		if (other.gameObject.tag == "Level")
 		{
 
-            if (canMove && Input.GetButton("Wall Hang")){
+            if (!grounded && canMove && Input.GetButton("Wall Hang")){
                 wallHang = true;
 
 			}
+
+            if(grounded && gliding){
+                glideSpeed = runSpeed;
+            }
 
         }
 	}

@@ -27,12 +27,14 @@ public float maximumY = 90F;
 public float rotationX = 0F;
 public float rotationY = 0F;
 
-Quaternion originalRotation;
+public Quaternion originalRotation;
 
     public float xOffset;
     public float yOffset;
 
     public float glideTurn;
+
+    public float turnOffset;
 
 void Update ()
 {
@@ -64,7 +66,7 @@ void Update ()
             }
             
 
-            Quaternion xQuaternion = Quaternion.AngleAxis(rotationX + xOffset, Vector3.up);
+            Quaternion xQuaternion = Quaternion.AngleAxis(rotationX + xOffset + turnOffset, Vector3.up);
             Quaternion yQuaternion = Quaternion.AngleAxis(rotationY + yOffset, -Vector3.right);
 
             transform.localRotation = originalRotation * xQuaternion * yQuaternion;
@@ -77,7 +79,7 @@ void Update ()
             }
 
 
-            Quaternion xQuaternion = Quaternion.AngleAxis(rotationX + xOffset + glideTurn, Vector3.up);
+            Quaternion xQuaternion = Quaternion.AngleAxis(rotationX + xOffset + turnOffset, Vector3.up);
             transform.localRotation = originalRotation * xQuaternion;
 
         }
@@ -112,6 +114,12 @@ void Start ()
 	originalRotation = transform.localRotation;
 
 }
+    void ResetAll(){
+
+        originalRotation = transform.localRotation;
+        rotationX = 0F;
+        rotationY = 0F;
+    }   
 
 public static float ClampAngle (float angle, float min, float max)
 {
