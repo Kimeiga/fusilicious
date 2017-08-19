@@ -6,6 +6,8 @@ public class FPMovement3 : MonoBehaviour {
 
     public bool gliding = false;
     float glideSpeed;
+    public float driftKeyDownTime;
+    public float driftTimeThresh;
     public float driftBonus = 0.02f;
     public float driftCap = 1.5f;
     public float driftDecay = 0.01f;
@@ -144,14 +146,14 @@ public class FPMovement3 : MonoBehaviour {
 		meshTransformOriginalScale = meshTransform.localScale;
 
 	}
-	
-	void Update()
-	{
 
-        if(Input.GetButtonDown("Glide")){
-            if (gliding == false){
+    void Update()
+    {
 
-				gliding = true;
+        if (Input.GetButtonDown("Glide")) {
+            if (gliding == false) {
+
+                gliding = true;
 
                 //bodyMouseRotate.canRotate = false;
                 bodyMouseRotate.enabled = false;
@@ -159,24 +161,57 @@ public class FPMovement3 : MonoBehaviour {
                 fireMouseRotate.axes = MouseRotate.RotationAxes.MouseXAndY;
 
 
-				originalRotation = transform.localRotation;
+                originalRotation = transform.localRotation;
 
                 glideSpeed = speed;
 
             }
-            else{
+            else {
 
                 gliding = false;
-				//bodyMouseRotate.canRotate = true;
+                //bodyMouseRotate.canRotate = true;
                 bodyMouseRotate.enabled = true;
                 bodyMouseRotate.originalRotation = transform.localRotation;
                 bodyMouseRotate.rotationX = fireMouseRotate.rotationX + fireMouseRotate.turnOffset;
 
-				fireMouseRotate.axes = MouseRotate.RotationAxes.MouseY;
+                fireMouseRotate.axes = MouseRotate.RotationAxes.MouseY;
                 fireMouseRotate.rotationX = 0;
                 fireMouseRotate.turnOffset = 0;
             }
 
+        }
+
+        if (gliding)
+        {
+            if (Input.GetButtonDown("Left"))
+            {
+                driftKeyDownTime = Time.time;
+            }
+
+            if (Input.GetButtonDown("Right"))
+            {
+                driftKeyDownTime = Time.time;
+            }
+
+            if (Input.GetButtonUp("Left"))
+            {
+
+                if (!Input.GetButton("Right"))
+                {
+                    driftKeyDownTime = -1; //this is an impossible value for Time.time
+                    //I am using this to save on variables; this way driftkeydowntime can be a boolean and a float hahahah
+                }
+            }
+
+            if (Input.GetButtonUp("Right"))
+            {
+
+                if (!Input.GetButton("Left"))
+                {
+                    driftKeyDownTime = -1; //this is an impossible value for Time.time
+                    //I am using this to save on variables; this way driftkeydowntime can be a boolean and a float hahahah
+                }
+            }
         }
 
         if(grounded){
@@ -447,8 +482,11 @@ public class FPMovement3 : MonoBehaviour {
                     driftRadiusMod = 0.7f;
 				}
 
-
-                glideSpeed += driftBonus * Mathf.Abs(Input.GetAxis("Horizontal")) / driftRadiusMod;
+                if(driftKeyDownTime != -1 && Time.time > driftKeyDownTime + driftTimeThresh)
+                {
+                    glideSpeed += driftBonus * Mathf.Abs(Input.GetAxis("Horizontal")) / driftRadiusMod;
+                }
+                
 
 
                 if(Input.GetAxis("Horizontal") == 0){
@@ -606,7 +644,13 @@ public class FPMovement3 : MonoBehaviour {
 
 		}
 
-	}
+
+        if (gliding && (characterController.collisionFlags & CollisionFlags.Sides) != 0 && hit.gameObject.tag == "Level")
+        {
+            glideSpeed = runSpeed;
+        }
+
+    }
 
 	void OnTriggerStay(Collider other)
 	{
@@ -619,9 +663,6 @@ public class FPMovement3 : MonoBehaviour {
 
 			}
 
-            if(grounded && gliding){
-                glideSpeed = runSpeed;
-            }
 
         }
 	}
