@@ -4,24 +4,28 @@ using System.Collections.Generic;
 
 public class FPMovement3 : MonoBehaviour {
 
+    public float driftTurnTime = 0;
+    public float driftTurnTimeMax = 3;
+    public bool driftTurning = false;
+
     public bool gliding = false;
-    float glideSpeed;
+    public float glideSpeed;
+    public bool driftBonusActive = false;
     public float driftKeyDownTime;
     public float driftTimeThresh;
     public float driftBonus = 0.02f;
     public float driftCap = 1.5f;
     public float driftDecay = 0.01f;
     public float driftRadius = 2;
+    public float tuckMod = 1.8f;
+    public float carveMod = 0.8f;
 
 
     public MouseRotate bodyMouseRotate;
     public MouseRotate fireMouseRotate;
-    public float turnSpeed = 2;
     Quaternion originalRotation;
 
-
-    float glideSpeedNew;
-    float turnSpeedNew;
+    
 
 	[Header("Base Variables")]
 	public CharacterController characterController;
@@ -45,16 +49,17 @@ public class FPMovement3 : MonoBehaviour {
 	public bool slideOnTaggedObjects = false;
 	public float slideSpeed = 6f;
 	private float slideLimit;
-	private bool sliding = false;
+	public bool sliding = false;
 	public int slideCounter = 0;
 
 	private float slideDirectionMod = 1;
 
 
-	[Space(10)]
+    [Space(10)]
 
 
-	[Header("Jumping Variables")]
+    [Header("Jumping Variables")]
+
 	public float jumpSpeed = 8;
 	private bool falling = false;
 	
@@ -64,7 +69,7 @@ public class FPMovement3 : MonoBehaviour {
 	private float antiBumpFactor = .75f;
 	private bool fellOffLedge = false;
 
-	private bool grounded = false;
+	public bool grounded = false;
 
 	private Vector3 wishDir;
 
@@ -165,6 +170,8 @@ public class FPMovement3 : MonoBehaviour {
 
                 glideSpeed = speed;
 
+                wishDir = new Vector3(0, 0, 1);
+
             }
             else {
 
@@ -185,34 +192,22 @@ public class FPMovement3 : MonoBehaviour {
         {
             if (Input.GetButtonDown("Left"))
             {
-                driftKeyDownTime = Time.time;
+                    driftKeyDownTime = Time.time;
+               
             }
 
             if (Input.GetButtonDown("Right"))
             {
-                driftKeyDownTime = Time.time;
+               
+                    driftKeyDownTime = Time.time;
+                
             }
 
-            if (Input.GetButtonUp("Left"))
-            {
-
-                if (!Input.GetButton("Right"))
-                {
-                    driftKeyDownTime = -1; //this is an impossible value for Time.time
-                    //I am using this to save on variables; this way driftkeydowntime can be a boolean and a float hahahah
-                }
-            }
-
-            if (Input.GetButtonUp("Right"))
-            {
-
-                if (!Input.GetButton("Left"))
-                {
-                    driftKeyDownTime = -1; //this is an impossible value for Time.time
-                    //I am using this to save on variables; this way driftkeydowntime can be a boolean and a float hahahah
-                }
-            }
+            driftTurning = (Input.GetButton("Left") || Input.GetButton("Right"));
+            
         }
+        driftTurnTime = Time.time - driftKeyDownTime;
+        driftTurnTime = Mathf.Clamp(driftTurnTime, 0, driftTurnTimeMax);
 
         if(grounded){
             jumpedFromStand = false;
@@ -236,10 +231,15 @@ public class FPMovement3 : MonoBehaviour {
 
 		rayDistance = characterController.height * 0.5f + characterController.radius;
 
-		if (canMove && Input.GetButtonUp("Jump"))
+		if (canMove && Input.GetButtonUp("Jump") && !sliding)
 		{
 			jumpButtonUp = true;
 		}
+
+        if(jumpButtonUp && !grounded)
+        {
+            print("wft");
+        }
 	}
 
 	void FixedUpdate() {
@@ -270,15 +270,15 @@ public class FPMovement3 : MonoBehaviour {
 			}
 			// However, just raycasting straight down from the center can fail when on steep slopes
 			// So if the above raycast didn't catch anything, raycast down from the stored ControllerColliderHit point instead
-			else
+			
+			Physics.Raycast(contactPoint + Vector3.up, -Vector3.up, out hit);
+			if (Vector3.Angle(hit.normal, Vector3.up) > slideLimit)
 			{
-				Physics.Raycast(contactPoint + Vector3.up, -Vector3.up, out hit);
-				if (Vector3.Angle(hit.normal, Vector3.up) > slideLimit)
-				{
-					sliding = true;
-					grounded = true;
-				}
+				sliding = true;
+				grounded = true;
+                
 			}
+                
 		}
 
 		if (sliding)
@@ -292,144 +292,142 @@ public class FPMovement3 : MonoBehaviour {
 		}
 
 
-		if (canMove)
-		{
+        if (canMove)
+        {
 
-            if(grounded){
-				if (falling && !(slideCounter > 2) && !dontBounceAssist)
-				{
-					recoilingFromLand = true;
-					falling = false;
+            if (grounded) {
+                if (falling && !(slideCounter > 2) && !dontBounceAssist && !sliding)
+                {
+                    recoilingFromLand = true;
+                    falling = false;
 
-					if (dontBounce)
-					{
-						dontBounceAssist = true;
-					}
-				}
+                    if (dontBounce)
+                    {
+                        dontBounceAssist = true;
+                    }
+                }
             }
-			
-
-			//record the previous height to scale the mesh, move the head, and change the y value of the transform
-			float previousHeight = characterController.height;
-
-			//set the target height for the crouch command
-			if (Input.GetButton("Crouch"))
-			{
-				//If you are near the crouching spring height, than stop recoiling from a landing
-				if (characterController.height - (crouchHeight - springOffset) < 0.05f)
-				{
-					recoilingFromLand = false;
-				}
-
-				//if you are crouching, then go to the crouch height
-				targetHeight = crouchHeight;
-
-				//if you are jumping or recoiling from a landing, go to the crouch spring height
-				if (Input.GetButton("Jump") || recoilingFromLand)
-				{
-					targetHeight = crouchHeight - springOffset;
-				}
-			}
-			else
-			{
-				//If you are near the spring height, than stop recoiling from a landing
-				if (characterController.height - (standHeight - springOffset) < 0.05f)
-				{
-					recoilingFromLand = false;
-				}
-
-				//if you are just standing, then go to the stand height
-				targetHeight = standHeight;
-
-				//if you are jumping or recoiling from a landing, go to the spring height
-				if (Input.GetButton("Jump") || recoilingFromLand)
-				{
-					targetHeight = standHeight - springOffset;
-				}
-			}
 
 
-			//If you are recoiling from a landing, than crouch faster
-			if (recoilingFromLand)
-			{
-				crouchingSpeedMod = springMod;
-			}
-			else
-			{
-				crouchingSpeedMod = 1;
-			}
+            //record the previous height to scale the mesh, move the head, and change the y value of the transform
+            float previousHeight = characterController.height;
+
+            //set the target height for the crouch command
+            if (Input.GetButton("Crouch"))
+            {
+                //If you are near the crouching spring height, than stop recoiling from a landing
+                if (characterController.height - (crouchHeight - springOffset) < 0.05f)
+                {
+                    recoilingFromLand = false;
+                }
+
+                //if you are crouching, then go to the crouch height
+                targetHeight = crouchHeight;
+
+                //if you are jumping or recoiling from a landing, go to the crouch spring height
+                if ((Input.GetButton("Jump") || recoilingFromLand) && !sliding)
+                {
+                    targetHeight = crouchHeight - springOffset;
+                }
+            }
+            else
+            {
+                //If you are near the spring height, than stop recoiling from a landing
+                if (characterController.height - (standHeight - springOffset) < 0.05f)
+                {
+                    recoilingFromLand = false;
+                }
+
+                //if you are just standing, then go to the stand height
+                targetHeight = standHeight;
+
+                //if you are jumping or recoiling from a landing, go to the spring height
+                if ((Input.GetButton("Jump") || recoilingFromLand) && !sliding)
+                {
+                    targetHeight = standHeight - springOffset;
+                }
+            }
 
 
-			//prevent increasing in height if there is something over my head
-			if ((characterController.collisionFlags & CollisionFlags.Above) != 0 && targetHeight == standHeight)
-			{
-				targetHeight = characterController.height;
-			}
-			//prevent increasing in height if there is something over my head
-			if (Physics.Raycast(transform.position, Vector3.up, out hit, characterController.height * 0.5f + 0.1f, notBodyPartAlive) && targetHeight == standHeight)
-			{
-				targetHeight = characterController.height;
-			}
+            //If you are recoiling from a landing, than crouch faster
+            if (recoilingFromLand)
+            {
+                crouchingSpeedMod = springMod;
+            }
+            else
+            {
+                crouchingSpeedMod = 1;
+            }
 
 
-
-
-
-			//Lerp the controller height to the target height
-
-			if (Mathf.Abs(characterController.height - targetHeight) > 0.0001f)
-			{
-
-				characterController.height = Mathf.Lerp(characterController.height, targetHeight, crouchingSpeed * crouchingSpeedMod);
-			}
+            //prevent increasing in height if there is something over my head
+            if ((characterController.collisionFlags & CollisionFlags.Above) != 0 && targetHeight == standHeight)
+            {
+                targetHeight = characterController.height;
+            }
+            //prevent increasing in height if there is something over my head
+            if (Physics.Raycast(transform.position, Vector3.up, out hit, characterController.height * 0.5f + 0.1f, notBodyPartAlive) && targetHeight == standHeight)
+            {
+                targetHeight = characterController.height;
+            }
 
 
 
 
 
-			//Change Y Value of Transform with change in controller height
-			float changeInHeightHalfed = (characterController.height - previousHeight) * 0.5f; //these two variables will be used for the next three sections
-			Vector3 temp = transform.position;
-			if (grounded)
-			{
-				temp.y += changeInHeightHalfed;
-			}
-			else
-			{
-				temp.y -= changeInHeightHalfed;
-			}
-			if (!float.IsNaN(temp.y))
-			{
-				transform.position = temp;
-			}
+            //Lerp the controller height to the target height
+
+            if (Mathf.Abs(characterController.height - targetHeight) > 0.0001f)
+            {
+
+                characterController.height = Mathf.Lerp(characterController.height, targetHeight, crouchingSpeed * crouchingSpeedMod);
+            }
 
 
 
-			//Change position of each "head object" with change in controller height such that it stays by the "head"
-			foreach (Transform t in headObjects)
-			{
-				temp = t.position;
-				temp.y += changeInHeightHalfed;
-				t.position = temp;
-			}
-
-			//Change position of each "foot object" with change in controller height such that it stays by the "foot"
-			foreach (Transform t in footObjects)
-			{
-				temp = t.position;
-				temp.y -= changeInHeightHalfed;
-				t.position = temp;
-			}
 
 
-			//Change scale of character mesh with change in controller height
-			temp = new Vector3(meshTransformOriginalScale.x, meshTransformOriginalScale.y * characterController.height / standHeight, meshTransformOriginalScale.z);
-			if (!float.IsNaN(meshTransformOriginalScale.y * characterController.height / standHeight))
-			{
-				meshTransform.localScale = temp;
-			}
+            //Change Y Value of Transform with change in controller height
+            float changeInHeightHalfed = (characterController.height - previousHeight) * 0.5f; //these two variables will be used for the next three sections
+            Vector3 temp = transform.position;
+            if (grounded)
+            {
+                temp.y += changeInHeightHalfed;
+            }
+            else
+            {
+                temp.y -= changeInHeightHalfed;
+            }
+            if (!float.IsNaN(temp.y))
+            {
+                transform.position = temp;
+            }
 
 
+
+            //Change position of each "head object" with change in controller height such that it stays by the "head"
+            foreach (Transform t in headObjects)
+            {
+                temp = t.position;
+                temp.y += changeInHeightHalfed;
+                t.position = temp;
+            }
+
+            //Change position of each "foot object" with change in controller height such that it stays by the "foot"
+            foreach (Transform t in footObjects)
+            {
+                temp = t.position;
+                temp.y -= changeInHeightHalfed;
+                t.position = temp;
+            }
+
+
+            //Change scale of character mesh with change in controller height
+            temp = new Vector3(meshTransformOriginalScale.x, meshTransformOriginalScale.y * characterController.height / standHeight, meshTransformOriginalScale.z);
+            if (!float.IsNaN(meshTransformOriginalScale.y * characterController.height / standHeight))
+            {
+                meshTransform.localScale = temp;
+            }
 
 
 
@@ -437,61 +435,54 @@ public class FPMovement3 : MonoBehaviour {
 
 
 
-			if (grounded)
-			{
-				fellOffLedge = false;
-			}
 
-			slideDirectionMod = Mathf.Lerp(slideDirectionMod, 1, 0.1f);
+
+            if (grounded)
+            {
+                fellOffLedge = false;
+            }
+
+            slideDirectionMod = Mathf.Lerp(slideDirectionMod, 1, 0.1f);
 
             if (!gliding)
             {
                 //get wish direction of movement from inputs
                 wishDir = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
 
-				if (wishDir.magnitude > 1)
-				{
-					wishDir = wishDir.normalized;
-				}
+                if (wishDir.magnitude > 1)
+                {
+                    wishDir = wishDir.normalized;
+                }
+
+                moveDir.x = wishDir.x * speed;
+                moveDir.z = wishDir.z * speed;
 
 
-
-				moveDir.x = wishDir.x * speed;
-				moveDir.z = wishDir.z * speed;
-
-
-			}
-            else{
+            }
+            else {
 
                 //rotate wishdir of movement with horizontal keys
 
-
-
-
-
-				turnSpeedNew = turnSpeed;
-
                 float driftRadiusMod = 1;
 
-				if (Input.GetButton("Tuck"))
-				{
-					driftRadiusMod = 1.3f;
-				}
-				else if (Input.GetButton("Carve"))
-				{
-                    driftRadiusMod = 0.7f;
-				}
-
-                if(driftKeyDownTime != -1 && Time.time > driftKeyDownTime + driftTimeThresh)
+                if (Input.GetButton("Tuck"))
                 {
-                    glideSpeed += driftBonus * Mathf.Abs(Input.GetAxis("Horizontal")) / driftRadiusMod;
+                    driftRadiusMod = tuckMod;
                 }
+                else if (Input.GetButton("Carve"))
+                {
+                    driftRadiusMod = carveMod;
+                }
+
+                if (driftTurning && Time.time > driftKeyDownTime + driftTimeThresh)
+                {
+                    glideSpeed += (driftBonus * Mathf.Abs(Input.GetAxis("Horizontal")) / driftRadiusMod) * driftTurnTime;
+                }
+                
+                    glideSpeed -= driftDecay;
                 
 
 
-                if(Input.GetAxis("Horizontal") == 0){
-                    glideSpeed -= driftDecay;
-                }
 
 
                 glideSpeed = Mathf.Clamp(glideSpeed, runSpeed, driftCap * runSpeed);
@@ -505,7 +496,7 @@ public class FPMovement3 : MonoBehaviour {
 
                 print(glideSpeed);
 
-				
+
 
                 wishDir = Quaternion.AngleAxis(turnDeg, Vector3.up) * wishDir;
 
@@ -517,43 +508,64 @@ public class FPMovement3 : MonoBehaviour {
 
                 fireMouseRotate.turnOffset -= turnDeg;
 
-                //Quaternion lookAtDir = Quaternion.LookRotation(transform.TransformDirection(wishDir));
-
-                //transform.rotation = lookAtDir;
-
-
-                //bodyMouseRotate.glideTurn += turn;
-
-				
 
 
 
                 moveDir.x = wishDir.x * glideSpeed;
                 moveDir.z = wishDir.z * glideSpeed;
 
-			}
+            }
 
 
+            if (!wallHang)
+            {
+                if (!grounded)
+                {
+
+                    moveDir.y -= gravity * Time.fixedDeltaTime;
+                }
+                else
+                {
+
+                    moveDir.y -= gravity * Time.fixedDeltaTime * 2;
+                }
+
+                characterController.stepOffset = stepOffsetInitial;
+            }
+            else
+            {
+                moveDir.y = 0;
+                characterController.stepOffset = 0.01f;
+            }
+
+            if ((characterController.collisionFlags & CollisionFlags.Below) != 0)
+            {
+                grounded = true;
+                
+            }
+            else
+            {
+                grounded = false;
+            }
+                
+
+            if (!jumpButtonUp)
+            {
+                //if we are still not grounded, raycast down to double check if we aren't
+                if (Physics.Raycast(transform.position, -transform.up, (characterController.height * 0.5f) + characterController.skinWidth + 0.05f))
+                {
+                    grounded = true;
+                }
+
+                Debug.DrawRay(transform.position,-transform.up * ((characterController.height * 0.5f) + characterController.skinWidth + 0.05f), Color.blue, 0.1f);
+            }
 
 
-
-
-
-			if (!wallHang)
-			{
-				moveDir.y -= gravity * Time.fixedDeltaTime;
-				characterController.stepOffset = stepOffsetInitial;
-			}
-			else
-			{
-				moveDir.y = 0;
-				characterController.stepOffset = 0.01f;
-			}
-
-			if (grounded)
+            if (grounded)
 			{
 				if (jumpButtonUp)
 				{
+
 					moveDir.y = jumpSpeed;
 					grounded = false;
 					dontBounceAssist = false;
@@ -562,7 +574,7 @@ public class FPMovement3 : MonoBehaviour {
 			}
 
 
-			if (((characterController.collisionFlags & CollisionFlags.Above) != 0) && hitCeiling == false)
+            if (((characterController.collisionFlags & CollisionFlags.Above) != 0) && hitCeiling == false)
 			{
 				moveDir.y = -0.4f;
 				hitCeiling = true;
@@ -592,11 +604,12 @@ public class FPMovement3 : MonoBehaviour {
 
 			}
 
+			characterController.Move(moveDir * Time.fixedDeltaTime);
+
+            
 
 
-			grounded = (characterController.Move(moveDir * Time.fixedDeltaTime) & CollisionFlags.Below) != 0;
-
-			if (grounded)
+            if (grounded)
 			{
 				hitCeiling = false;
 				moveDir.y = -antiBumpFactor;
@@ -645,10 +658,12 @@ public class FPMovement3 : MonoBehaviour {
 		}
 
 
+
         if (gliding && (characterController.collisionFlags & CollisionFlags.Sides) != 0 && hit.gameObject.tag == "Level")
         {
             glideSpeed = runSpeed;
         }
+        
 
     }
 

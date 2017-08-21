@@ -1,13 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2017
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "fusilicious.Plugins", "fusilicious.Plugins.csproj", "{02CB252D-01BF-9542-653A-A82A312F8F80}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "fusilicious", "fusilicious.csproj", "{A3410154-BDB8-DA4E-20D5-BC18E2EC7AAA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "fusilicious.Editor", "fusilicious.Editor.csproj", "{6335C76A-D648-ADA8-A1FD-86E5FA003CE1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "fusilicious.Plugins", "fusilicious.Plugins.csproj", "{02CB252D-01BF-9542-653A-A82A312F8F80}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "fusilicious.Editor.Plugins", "fusilicious.Editor.Plugins.csproj", "{3AFDF1DD-5616-246F-7159-845594F4E285}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "fusilicious.Editor", "fusilicious.Editor.csproj", "{6335C76A-D648-ADA8-A1FD-86E5FA003CE1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,22 +15,22 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{02CB252D-01BF-9542-653A-A82A312F8F80}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{02CB252D-01BF-9542-653A-A82A312F8F80}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{02CB252D-01BF-9542-653A-A82A312F8F80}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{02CB252D-01BF-9542-653A-A82A312F8F80}.Release|Any CPU.Build.0 = Release|Any CPU
 		{A3410154-BDB8-DA4E-20D5-BC18E2EC7AAA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{A3410154-BDB8-DA4E-20D5-BC18E2EC7AAA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A3410154-BDB8-DA4E-20D5-BC18E2EC7AAA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A3410154-BDB8-DA4E-20D5-BC18E2EC7AAA}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6335C76A-D648-ADA8-A1FD-86E5FA003CE1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6335C76A-D648-ADA8-A1FD-86E5FA003CE1}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6335C76A-D648-ADA8-A1FD-86E5FA003CE1}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6335C76A-D648-ADA8-A1FD-86E5FA003CE1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{02CB252D-01BF-9542-653A-A82A312F8F80}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{02CB252D-01BF-9542-653A-A82A312F8F80}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{02CB252D-01BF-9542-653A-A82A312F8F80}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{02CB252D-01BF-9542-653A-A82A312F8F80}.Release|Any CPU.Build.0 = Release|Any CPU
 		{3AFDF1DD-5616-246F-7159-845594F4E285}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{3AFDF1DD-5616-246F-7159-845594F4E285}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3AFDF1DD-5616-246F-7159-845594F4E285}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3AFDF1DD-5616-246F-7159-845594F4E285}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6335C76A-D648-ADA8-A1FD-86E5FA003CE1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6335C76A-D648-ADA8-A1FD-86E5FA003CE1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6335C76A-D648-ADA8-A1FD-86E5FA003CE1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6335C76A-D648-ADA8-A1FD-86E5FA003CE1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
