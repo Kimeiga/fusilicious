@@ -4,6 +4,8 @@ using System.Collections.Generic;
 
 public class FPMovement3 : MonoBehaviour {
 
+    public bool contacting = false;
+
     public float driftTurnTime = 0;
     public float driftTurnTimeMax = 3;
     public bool driftTurning = false;
@@ -243,6 +245,8 @@ public class FPMovement3 : MonoBehaviour {
 	}
 
 	void FixedUpdate() {
+
+        contacting = false;
 
         //sliding mechanic
 		if (grounded)
@@ -565,7 +569,6 @@ public class FPMovement3 : MonoBehaviour {
 			{
 				if (jumpButtonUp)
 				{
-
 					moveDir.y = jumpSpeed;
 					grounded = false;
 					dontBounceAssist = false;
@@ -603,6 +606,9 @@ public class FPMovement3 : MonoBehaviour {
 				}
 
 			}
+
+
+
 
 			characterController.Move(moveDir * Time.fixedDeltaTime);
 
@@ -663,7 +669,8 @@ public class FPMovement3 : MonoBehaviour {
         {
             glideSpeed = runSpeed;
         }
-        
+
+        contacting = true;
 
     }
 
