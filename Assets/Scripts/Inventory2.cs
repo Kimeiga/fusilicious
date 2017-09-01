@@ -297,11 +297,15 @@ public class Inventory2 : MonoBehaviour
                             //if it's still null, then there are no free slots
                             if (freeIndex == -1)
                             {
-                                //eventually write a function that drops the item in the last sundry slot and brings the new item directly to that holster
+                                //eventually write a function that drops the item in the last slot and equips the new item
+                                DropAndSwitchToItem(hit.transform.gameObject);
+                            }
+                            else
+                            {
+
+                                HolsterAndSwitchToItem(hit.transform.gameObject, freeIndex);
                             }
 
-
-                            HolsterAndSwitchToItem(hit.transform.gameObject, freeIndex);
 
 
                         }
@@ -331,53 +335,53 @@ public class Inventory2 : MonoBehaviour
 
                 if (Input.GetButtonDown("Drop"))
                 {
-                    DropCurrentItem(dropForce);
+                    DropItem(dropForce, inventory[inventoryIndex]);
                 }
                 else if (Input.GetButtonDown("Throw"))
                 {
-                    DropCurrentItem(throwForce);
+                    DropItem(throwForce, inventory[inventoryIndex]);
                 }
 
             }
 
 
 
-            if (Input.GetButtonDown("Slot 0") && inventoryIndex != 0)
+            if (Input.GetButtonDown("Slot 0") && inventoryIndex != 0 && 0 < inventory.Length)
             {
                 StartCoroutine(SwitchToItem(0));
                 //print("switching to 0");
             }
-            if (Input.GetButtonDown("Slot 1") && inventoryIndex != 1)
+            if (Input.GetButtonDown("Slot 1") && inventoryIndex != 1 && 1 < inventory.Length)
             {
                 StartCoroutine(SwitchToItem(1));
                 //print("switching to 1");
             }
-            if (Input.GetButtonDown("Slot 2") && inventoryIndex != 2)
+            if (Input.GetButtonDown("Slot 2") && inventoryIndex != 2 && 2 < inventory.Length)
             {
                 StartCoroutine(SwitchToItem(2));
                 //print("switching to 2");
             }
-            if (Input.GetButtonDown("Slot 3") && inventoryIndex != 3)
+            if (Input.GetButtonDown("Slot 3") && inventoryIndex != 3 && 3 < inventory.Length)
             {
                 StartCoroutine(SwitchToItem(3));
                 //print("switching to 3");
             }
-            if (Input.GetButtonDown("Slot 4") && inventoryIndex != 4)
+            if (Input.GetButtonDown("Slot 4") && inventoryIndex != 4 && 4 < inventory.Length)
             {
                 StartCoroutine(SwitchToItem(4));
                 //print("switching to 4");
             }
-            if (Input.GetButtonDown("Slot 5") && inventoryIndex != 5)
+            if (Input.GetButtonDown("Slot 5") && inventoryIndex != 5 && 5 < inventory.Length)
             {
                 StartCoroutine(SwitchToItem(5));
                 //print("switching to 5");
             }
-            if (Input.GetButtonDown("Slot 6") && inventoryIndex != 6)
+            if (Input.GetButtonDown("Slot 6") && inventoryIndex != 6 && 6 < inventory.Length)
             {
                 StartCoroutine(SwitchToItem(6));
                 //print("switching to 6");  
             }
-            if (Input.GetButtonDown("Slot 7") && inventoryIndex != 7)
+            if (Input.GetButtonDown("Slot 7") && inventoryIndex != 7 && 7 < inventory.Length)
             {
                 StartCoroutine(SwitchToItem(7));
                 //print("switching to 7");  
@@ -525,7 +529,8 @@ public class Inventory2 : MonoBehaviour
         LeanTween.moveLocal(nextItem, nextItemScript.localHoldPosition, grabTime).setEase(LeanTweenType.easeOutQuart);
 
         //move item to preferred hold rotation
-        LeanTween.rotateLocal(nextItem, nextItemScript.localHoldRotation, grabTime).setEase(LeanTweenType.easeOutQuart);
+        //LeanTween.rotateLocal(nextItem, nextItemScript.localHoldRotation, grabTime).setEase(LeanTweenType.easeOutQuart);
+        nextItem.transform.DOLocalRotateQuaternion(Quaternion.Euler(nextItemScript.localHoldRotation), grabTime).SetEase(Ease.OutQuart);
 
 
 
@@ -591,20 +596,27 @@ public class Inventory2 : MonoBehaviour
 
 
 
-    void DropCurrentItem(float force)
+    void DropItem(float force, GameObject item, bool fromHolster = false, int ind = 0)
     {
 
         //set working variables
         stateChange = true;
-        prevItem = inventory[inventoryIndex];
+        prevItem = item;
         prevItemScript = prevItem.GetComponent<Item>();
 
 
         //unchild item from super hand 
         prevItem.transform.parent = null;
 
-        //nullify its inventory slot
-        inventory[inventoryIndex] = null;
+        if (!fromHolster)
+        {
+            //nullify its inventory slot
+            inventory[inventoryIndex] = null;
+        }
+        else
+        {
+            inventory[ind] = null;
+        }
 
         //deactivate rigidbody physics
         Rigidbody rigid = prevItem.GetComponent<Rigidbody>();
@@ -629,13 +641,47 @@ public class Inventory2 : MonoBehaviour
         //throw the fucker
         rigid.AddForce((lookTransform.forward * force) + playerMovementMod , ForceMode.Impulse);
 
-        //keep your hands on it for a bit and then retract them to make it seem as if you are throwing it with your hands hahahahhahaha
-        StartCoroutine(ThrowWithYourHands(0.2f));
+        if (!fromHolster)
+        {
+            //keep your hands on it for a bit and then retract them to make it seem as if you are throwing it with your hands hahahahhahaha
+            StartCoroutine(ThrowWithYourHands(0.2f));
+        }
+        
 
         //make sure that its trajectory is not going to be influenced by the current player so long as they are intersecting
         StartCoroutine(DontCollideWithDroppingItem(prevItemScript.col));
 
+        if (fromHolster)
+        {
+            //put item on back on Item Layer
+            prevItem.layer = LayerMask.NameToLayer("Item");
+            Transform[] childTransforms = prevItem.GetComponentsInChildren<Transform>();
+            foreach (Transform trans in childTransforms)
+            {
+                if (trans.gameObject != rightHandTransform.gameObject && trans.gameObject != leftHandTransform.gameObject)
+                {
+                    if (System.Array.IndexOf(rightHandChildren, trans) == -1 && System.Array.IndexOf(leftHandChildren, trans) == -1)
+                    {
+                        trans.gameObject.layer = LayerMask.NameToLayer("Item");
+                    }
+                }
+            }
 
+            leftHandTransform.parent = handsTransform;
+            rightHandTransform.parent = handsTransform;
+
+            //LeanTween.moveLocal(rightHandTransform.gameObject, rightHandOriginPos, dropTime).setEase(LeanTweenType.easeOutExpo);
+            //LeanTween.rotateLocal(rightHandTransform.gameObject, rightHandOriginRot.eulerAngles, dropTime).setEase(LeanTweenType.easeOutExpo);
+            //LeanTween.moveLocal(leftHandTransform.gameObject, leftHandOriginPos, dropTime).setEase(LeanTweenType.easeOutExpo);
+            //LeanTween.rotateLocal(leftHandTransform.gameObject, leftHandOriginRot.eulerAngles, dropTime).setEase(LeanTweenType.easeOutExpo).setOnComplete(() =>
+            //{
+
+            //    //nullify working variables
+            //    prevItem = null;
+            //    prevItemScript = null;
+            //    stateChange = false;
+            //});
+        }
     
 
     }
@@ -697,6 +743,8 @@ public class Inventory2 : MonoBehaviour
         //set working variables
         stateChange = true;
 
+        print(inventoryIndex);
+
         prevItem = inventory[inventoryIndex];
         prevItemScript = prevItem.GetComponent<Item>();
 
@@ -740,7 +788,9 @@ public class Inventory2 : MonoBehaviour
 
 
         LeanTween.moveLocal(prevItem, Vector3.zero, grabTime).setEase(LeanTweenType.easeOutExpo);
-        LeanTween.rotateLocal(prevItem, Quaternion.identity.eulerAngles, grabTime).setEase(LeanTweenType.easeOutExpo);
+        //LeanTween.rotateLocal(prevItem, Quaternion.identity.eulerAngles, grabTime).setEase(LeanTweenType.easeOutExpo);
+        prevItem.transform.DOLocalRotateQuaternion(Quaternion.identity, grabTime).SetEase(Ease.OutExpo);
+
 
         StartCoroutine(GrabItem(nextItem, !useRightHand, true));
 
@@ -1066,6 +1116,35 @@ public class Inventory2 : MonoBehaviour
 
     }
 
+    /// <summary>
+    /// this is called when your inventory is full and you want to pick up another item
+    /// the item in the last slot of inventory is dropped from the holster
+    /// and you pick up the new item from the ground
+    /// the index switches to the last index of inventory (duh)
+    /// </summary>
+    void DropAndSwitchToItem(GameObject item)
+    {
+
+        if(inventoryIndex != 0)
+        {
+            print("K");
+
+            DropItem(dropForce, inventory[0], true, 0);
+
+            HolsterAndSwitchToItem(item, 0);
+        }
+        else
+        {
+
+            DropItem(dropForce, inventory[maxInventorySize - 1], true, maxInventorySize -1);
+
+            HolsterAndSwitchToItem(item, maxInventorySize - 1);
+        }
+
+
+        print("D");
+        
+    }
 
 }
 
