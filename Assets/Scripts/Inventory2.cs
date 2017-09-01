@@ -499,8 +499,19 @@ public class Inventory2 : MonoBehaviour
         {
             trans.gameObject.layer = LayerMask.NameToLayer("Player Item");
         }
+        
+        leftHandTransform.gameObject.layer = LayerMask.NameToLayer("Player Item");
+        foreach (Transform trans in leftHandChildren)
+        {
+            trans.gameObject.layer = LayerMask.NameToLayer("Player Item");
+        }
 
-
+        
+        rightHandTransform.gameObject.layer = LayerMask.NameToLayer("Player Item");
+        foreach (Transform trans in rightHandChildren)
+        {
+            trans.gameObject.layer = LayerMask.NameToLayer("Player Item");
+        }
 
         //child item to super hand to make preferred local position and rotation easier to calculate
         nextItem.transform.parent = handsTransform;
@@ -521,12 +532,6 @@ public class Inventory2 : MonoBehaviour
         if (useRightHand)
         {
 
-			//you should do this to the grab hand too so that it looks ok:
-			rightHandTransform.gameObject.layer = LayerMask.NameToLayer("Player Item");
-			foreach (Transform trans in rightHandChildren)
-			{
-				trans.gameObject.layer = LayerMask.NameToLayer("Player Item");
-			}
 
 
 			//child right hand to item to allow right hand to move along with item
@@ -541,12 +546,7 @@ public class Inventory2 : MonoBehaviour
         }
         else
         {
-			//you should do this to the grab hand too so that it looks ok in world space
-			leftHandTransform.gameObject.layer = LayerMask.NameToLayer("Player Item");
-			foreach (Transform trans in leftHandChildren)
-			{
-				trans.gameObject.layer = LayerMask.NameToLayer("Player Item");
-			}
+			
 
 			//child left hand to item to allow right hand to move along with item
 			leftHandTransform.parent = nextItem.transform;
