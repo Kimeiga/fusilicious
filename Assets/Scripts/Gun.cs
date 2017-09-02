@@ -72,6 +72,8 @@ public class Gun : MonoBehaviour
     public float kickbackAcc;
 
 
+    public Inventory2 inventoryScript;
+
     // Use this for initialization
     void Start()
     {
@@ -194,7 +196,7 @@ public class Gun : MonoBehaviour
 
                         kickbackAcc -= kickback;
 
-
+                        inventoryScript.ammoText.text = ammo.ToString();
 					}
 
                 }
@@ -246,6 +248,7 @@ public class Gun : MonoBehaviour
 
             if(Input.GetButtonDown("Reload")){
                 ammo = maxAmmo;
+                inventoryScript.ammoText.text = ammo.ToString();
             }
 
 

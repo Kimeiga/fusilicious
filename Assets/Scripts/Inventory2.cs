@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.UI;
 
 using DG.Tweening;
 
@@ -14,7 +15,7 @@ public class Inventory2 : MonoBehaviour
     private bool stateChange;
 
     //Grabbing Behaviour Variables
-    private GameObject nextItem;
+    public GameObject nextItem;
     private Item nextItemScript;
 
     private GameObject prevItem;
@@ -83,25 +84,7 @@ public class Inventory2 : MonoBehaviour
 		set
 		{
 			inventorySub = value;
-
-            if (nextItem)
-			{
-
-                if (nextItemScript.type == ItemType.Gun)
-				{
-					ammoPanel.SetActive(true);
-				}
-				else
-				{
-					ammoPanel.SetActive(false);
-				}
-			}
-			else
-			{
-				ammoPanel.SetActive(false);
-			}
-
-
+            
 
 		}
     }
@@ -121,24 +104,7 @@ public class Inventory2 : MonoBehaviour
 		{
 
             inventoryInd = value;
-
-            if(inventory[value]){
-
-				if (inventory[value].GetComponent<Item>().type == ItemType.Gun)
-				{
-					ammoPanel.SetActive(true);
-				}
-				else
-				{
-					ammoPanel.SetActive(false);
-				}
-            }
-			else
-			{
-				ammoPanel.SetActive(false);
-			}
-
-
+            
 
 		}
 	}
@@ -154,13 +120,16 @@ public class Inventory2 : MonoBehaviour
 
 
 
-    public GameObject ammoPanel;
-
+    private GameObject ammoPanel;
+    public Text ammoText;
 
 
     // Use this for initialization
     void Start()
     {
+
+        //set ammopanel for ammo updating
+        ammoPanel = ammoText.transform.parent.gameObject;
 
         //set fpmscript for enhanced drop mechanic
         fpmScript = GetComponent<FPMovement3>();
@@ -483,6 +452,15 @@ public class Inventory2 : MonoBehaviour
         //put it in the inventory
         inventory[inventoryIndex] = nextItem;
 
+
+        if (nextItemScript.type == ItemType.Gun)
+        {
+            ammoPanel.SetActive(true);
+            Gun gunScript = nextItem.GetComponent<Gun>();
+            ammoText.text = gunScript.ammo.ToString();
+            gunScript.inventoryScript = gameObject.GetComponent<Inventory2>();
+        }
+
         //deactivate rigidbody physics
         Rigidbody rigid = nextItem.GetComponent<Rigidbody>();
         rigid.isKinematic = true;
@@ -626,8 +604,9 @@ public class Inventory2 : MonoBehaviour
         //unactivate item
         prevItemScript.active = false;
 
-
-
+        
+            ammoPanel.SetActive(false);
+        
 
 
         //I want to compound the force with the player's own movement so it can fly farther when you run and jump and shit you know.
@@ -670,17 +649,6 @@ public class Inventory2 : MonoBehaviour
             leftHandTransform.parent = handsTransform;
             rightHandTransform.parent = handsTransform;
 
-            //LeanTween.moveLocal(rightHandTransform.gameObject, rightHandOriginPos, dropTime).setEase(LeanTweenType.easeOutExpo);
-            //LeanTween.rotateLocal(rightHandTransform.gameObject, rightHandOriginRot.eulerAngles, dropTime).setEase(LeanTweenType.easeOutExpo);
-            //LeanTween.moveLocal(leftHandTransform.gameObject, leftHandOriginPos, dropTime).setEase(LeanTweenType.easeOutExpo);
-            //LeanTween.rotateLocal(leftHandTransform.gameObject, leftHandOriginRot.eulerAngles, dropTime).setEase(LeanTweenType.easeOutExpo).setOnComplete(() =>
-            //{
-
-            //    //nullify working variables
-            //    prevItem = null;
-            //    prevItemScript = null;
-            //    stateChange = false;
-            //});
         }
     
 
@@ -743,8 +711,6 @@ public class Inventory2 : MonoBehaviour
         //set working variables
         stateChange = true;
 
-        print(inventoryIndex);
-
         prevItem = inventory[inventoryIndex];
         prevItemScript = prevItem.GetComponent<Item>();
 
@@ -791,6 +757,9 @@ public class Inventory2 : MonoBehaviour
         //LeanTween.rotateLocal(prevItem, Quaternion.identity.eulerAngles, grabTime).setEase(LeanTweenType.easeOutExpo);
         prevItem.transform.DOLocalRotateQuaternion(Quaternion.identity, grabTime).SetEase(Ease.OutExpo);
 
+        
+            ammoPanel.SetActive(false);
+        
 
         StartCoroutine(GrabItem(nextItem, !useRightHand, true));
 
@@ -960,17 +929,23 @@ public class Inventory2 : MonoBehaviour
 
         }
 
+        ammoPanel.SetActive(false);
 
 
         //yeah we are done with the first phase dawg
-		yield return new WaitForSeconds(grabTime);
+        yield return new WaitForSeconds(grabTime);
+
+        if(nextItemScript.type == ItemType.Gun)
+        {
+            ammoPanel.SetActive(true);
+            Gun gunScript = nextItem.GetComponent<Gun>();
+            ammoText.text = gunScript.ammo.ToString();
+            gunScript.inventoryScript = gameObject.GetComponent<Inventory2>();
+        }
 
 
 
-
-
-
-        if(!toHands){
+        if (!toHands){
 
             //put new item on handtransform so you can ready it and shit
 			nextItem.transform.parent = handsTransform;
