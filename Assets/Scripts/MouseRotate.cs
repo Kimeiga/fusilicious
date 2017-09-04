@@ -31,6 +31,7 @@ public Quaternion originalRotation;
 
     public float xOffset;
     public float yOffset;
+    
 
     public float glideTurn;
 
@@ -38,7 +39,6 @@ public Quaternion originalRotation;
 
 void Update ()
 {
-
         
 
         if(Input.GetButtonDown("Increase Sensitivity"))
@@ -103,8 +103,15 @@ void Update ()
 
 			transform.localRotation = originalRotation * xQuaternion * yQuaternion;
         }
-	
+        
+
 }
+
+    public void ResetOffsets()
+    {
+        LeanTween.value(gameObject, yOffset, 0, 0.7f).setEase(LeanTweenType.easeOutQuart).setOnUpdate((float val) => { yOffset = val; });
+        LeanTween.value(gameObject, xOffset, 0, 0.7f).setEase(LeanTweenType.easeOutQuart).setOnUpdate((float val) => { xOffset = val; });
+    }
 
 void Start ()
 {

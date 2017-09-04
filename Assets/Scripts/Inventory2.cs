@@ -15,7 +15,7 @@ public class Inventory2 : MonoBehaviour
     private bool stateChange;
 
     //Grabbing Behaviour Variables
-    public GameObject nextItem;
+     GameObject nextItem;
     private Item nextItemScript;
 
     private GameObject prevItem;
@@ -35,6 +35,8 @@ public class Inventory2 : MonoBehaviour
     //Initial Grab Raycast Variables
     public Transform lookTransform;
     public Transform fireTransform;
+    private MouseRotate fireTransformScript;
+    private MouseRotate bodyTransformScript;
     public float grabRange = 4;
     private LayerMask grabLayerMask;
     private RaycastHit hit;
@@ -128,6 +130,9 @@ public class Inventory2 : MonoBehaviour
     void Start()
     {
 
+        fireTransformScript = fireTransform.GetComponent<MouseRotate>();
+        bodyTransformScript = transform.GetComponent<MouseRotate>();
+
         //set ammopanel for ammo updating
         ammoPanel = ammoText.transform.parent.gameObject;
 
@@ -214,8 +219,8 @@ public class Inventory2 : MonoBehaviour
                     if(hitItemScript.type == ItemType.Gun){
                         Gun hitItemGun = hitItem.GetComponent<Gun>();
                         hitItemGun.fireTransform = fireTransform;
-                        hitItemGun.fireTransformRotate = fireTransform.GetComponent<MouseRotate>();
-                        hitItemGun.bodyTransformRotate = transform.GetComponent<MouseRotate>();
+                        hitItemGun.fireTransformRotate = fireTransformScript;
+                        hitItemGun.bodyTransformRotate = bodyTransformScript;
                         hitItemGun.lookTransformRotate = lookTransform.GetComponent<MouseRotate>();
                         hitItemGun.handsSway = handsTransform.GetComponent<Sway>();
                     }
@@ -457,8 +462,15 @@ public class Inventory2 : MonoBehaviour
         {
             ammoPanel.SetActive(true);
             Gun gunScript = nextItem.GetComponent<Gun>();
-            ammoText.text = gunScript.ammo.ToString();
+            ammoText.text = gunScript.Ammo.ToString();
             gunScript.inventoryScript = gameObject.GetComponent<Inventory2>();
+
+            fireTransformScript.ResetOffsets();
+            bodyTransformScript.ResetOffsets();
+
+            gunScript.currentRecoil = 0;
+            gunScript.xRecoilOffset = 0;
+            gunScript.yRecoilOffset = 0;
         }
 
         //deactivate rigidbody physics
@@ -466,8 +478,6 @@ public class Inventory2 : MonoBehaviour
         rigid.isKinematic = true;
         rigid.useGravity = false;
 
-        //reactivate item
-        nextItemScript.active = true;
 
         //turn off that fucking collider so it doesn't fucking move my dude and it doesn't cause excess collision events and trigger events and ahofidajwepoijvz
 		nextItemScript.col.enabled = false;
@@ -563,6 +573,8 @@ public class Inventory2 : MonoBehaviour
         }
 
 
+        //reactivate item
+        nextItemScript.active = true;
 
 
         //nullify working variables
@@ -570,6 +582,7 @@ public class Inventory2 : MonoBehaviour
         nextItemScript = null;
         stateChange = false;
 
+        
     }
 
 
@@ -581,6 +594,10 @@ public class Inventory2 : MonoBehaviour
         stateChange = true;
         prevItem = item;
         prevItemScript = prevItem.GetComponent<Item>();
+
+
+        fireTransformScript.ResetOffsets();
+        bodyTransformScript.ResetOffsets();
 
 
         //unchild item from super hand 
@@ -778,6 +795,10 @@ public class Inventory2 : MonoBehaviour
         bool fromHands = (inventory[inventoryIndex] == null);
         bool toHands = inventory[nextSlot] == null;
 
+
+        fireTransformScript.ResetOffsets();
+        bodyTransformScript.ResetOffsets();
+
         if (!fromHands)
         {
             prevItem = inventory[inventoryIndex];
@@ -790,6 +811,7 @@ public class Inventory2 : MonoBehaviour
 	        nextItem = inventory[nextSlot];
 	        nextItemScript = nextItem.GetComponent<Item>();
         }
+
 
 
         //if you are just going from hands to hands, you literally just need to change the current inventory index and get the fuck out of here
@@ -935,12 +957,17 @@ public class Inventory2 : MonoBehaviour
         //yeah we are done with the first phase dawg
         yield return new WaitForSeconds(grabTime);
 
-        if(nextItemScript.type == ItemType.Gun)
+        if(nextItem != null && nextItemScript.type == ItemType.Gun)
         {
             ammoPanel.SetActive(true);
             Gun gunScript = nextItem.GetComponent<Gun>();
-            ammoText.text = gunScript.ammo.ToString();
+            ammoText.text = gunScript.Ammo.ToString();
             gunScript.inventoryScript = gameObject.GetComponent<Inventory2>();
+            gunScript.currentRecoil = 0;
+            gunScript.xRecoilOffset = 0;
+            gunScript.yRecoilOffset = 0;
+
+
         }
 
 
@@ -962,8 +989,6 @@ public class Inventory2 : MonoBehaviour
 
             //the hands should already be on player item layer i think...
 
-			//reactivate item
-			nextItemScript.active = true;
 
             //set grab time
 			grabTime = Vector3.Distance(nextItem.transform.position, handsTransform.TransformPoint(nextItemScript.localHoldPosition)) * grabTimeMod;
@@ -1073,6 +1098,10 @@ public class Inventory2 : MonoBehaviour
 
         yield return new WaitForSeconds(grabTime);
 
+
+        //reactivate item
+        if(nextItem)
+        nextItemScript.active = true;
 
         //nullify working variables
         if (!fromHands){

@@ -16,7 +16,26 @@ public class Gun : MonoBehaviour
 
     //gun stats
     public int maxAmmo;
-    public int ammo;
+    private int ammo;
+
+    public int Ammo
+    {
+        get
+        {
+            return ammo;
+        }
+
+        set
+        {
+            ammo = value;
+
+            if (inventoryScript)
+            {
+
+                inventoryScript.ammoText.text = ammo.ToString();
+            }
+        }
+    }
 
     public bool automatic;
     private bool fireCommand;
@@ -74,6 +93,8 @@ public class Gun : MonoBehaviour
 
     public Inventory2 inventoryScript;
 
+    
+
     // Use this for initialization
     void Start()
     {
@@ -84,7 +105,7 @@ public class Gun : MonoBehaviour
 
         //initialize numbers
         nextFire = 0;
-        ammo = maxAmmo;
+        Ammo = maxAmmo;
 
 
         currentRecoil = 0;
@@ -117,7 +138,7 @@ public class Gun : MonoBehaviour
 
             if (fireCommand)
             {
-                if(ammo > 0){
+                if(Ammo > 0){
 
                     firing = true;
                     firingAux = true;
@@ -146,42 +167,39 @@ public class Gun : MonoBehaviour
 
 							Quaternion rot = Quaternion.LookRotation(-fireTransform.forward);
 
-							GameObject bul = (GameObject)Instantiate(bullet, hit.point, rot);
+							GameObject bul = (GameObject)Instantiate(bullet, hit.point, Quaternion.identity);
 
-							//float bulletScaleMod = hit.distance * scaleMod;
-							//bulletScaleMod = Mathf.Clamp(bulletScaleMod, minScaleMod, maxScaleMod);
+                            Bullet bulScript = bul.GetComponent<Bullet>();
+                            
+                            bul.transform.SetParent(hit.transform);
 
-							//bul.transform.localScale *= bulletScaleMod;
-							////bul.transform.parent = hit.transform;
+                            Vector3 temp = hit.transform.localScale;
+                            temp.x = 1 / temp.x;
+                            temp.y = 1 / temp.y;
+                            temp.z = 1 / temp.z;
 
+                            bul.transform.localScale = temp;
 
+                            bulScript.bulletActual.transform.localRotation = rot;
+                            
+                            
+						    float bulletScaleMod = hit.distance * scaleMod;
+						    bulletScaleMod = Mathf.Clamp(bulletScaleMod, minScaleMod, maxScaleMod);
 
+                            print(bulletScaleMod);
 
-							Vector3 prevScale = bul.transform.lossyScale;
-							Vector3 hitObjectScale = hit.transform.lossyScale;
-							Vector3 newScale = new Vector3(prevScale.x / hitObjectScale.x, prevScale.y / hitObjectScale.y, prevScale.z / hitObjectScale.z);
-
-
-
-							print(prevScale + "\n" + hitObjectScale + "\n" + newScale);
-							//bul.transform.SetParent(hit.transform);
-							//bul.transform.localScale = newScale;
-
-
-
-							//bul.transform.rotation = rot;
-
+                            bulScript.bulletActual.transform.localScale *= bulletScaleMod;
 
 						}
 						nextFire = Time.time + fireRate;
 
 						//fireAudioSource.PlayOneShot(fireAudioSource.clip);
 
-						ammo--;
+						Ammo--;
 
                         currentRecoil += currentRecoilIncrement;
 
-                        LeanTween.cancelAll();
+                        LeanTween.cancel(gameObject);
 
                         xRecoilOffset += xRecoil.Evaluate(currentRecoil) * recoilModX;
                         yRecoilOffset += yRecoil.Evaluate(currentRecoil) * recoilModY;
@@ -195,8 +213,7 @@ public class Gun : MonoBehaviour
                         yKick = kickDir.y;
 
                         kickbackAcc -= kickback;
-
-                        inventoryScript.ammoText.text = ammo.ToString();
+                        
 					}
 
                 }
@@ -247,8 +264,7 @@ public class Gun : MonoBehaviour
 
 
             if(Input.GetButtonDown("Reload")){
-                ammo = maxAmmo;
-                inventoryScript.ammoText.text = ammo.ToString();
+                Ammo = maxAmmo;
             }
 
 

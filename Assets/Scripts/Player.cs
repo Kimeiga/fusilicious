@@ -2,15 +2,36 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using UnityEngine.UI;
+
 
 public class Player : MonoBehaviour, IComparable<Player> {
 
     public string playerName;
     public Color color;
+    private float health;
+    public float maxHealth = 100;
 
-	// Use this for initialization
-	void Start () {
-		
+    public Text healthText;
+
+    public float Health
+    {
+        get
+        {
+            return health;
+        }
+
+        set
+        {
+            health = value;
+
+            healthText.text = value.ToString();
+        }
+    }
+
+    // Use this for initialization
+    void Start () {
+        Health = maxHealth;
 	}
 	
 	// Update is called once per frame
