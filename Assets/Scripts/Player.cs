@@ -25,7 +25,7 @@ public class Player : MonoBehaviour, IComparable<Player> {
         {
             health = value;
 
-            healthText.text = value.ToString();
+            healthText.text = value.ToString() + "+";
         }
     }
 

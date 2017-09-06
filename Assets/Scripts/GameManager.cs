@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
@@ -8,6 +9,10 @@ public class GameManager : MonoBehaviour
     public static GameManager GM;
 
     public List<Player> players = new List<Player>();
+
+    public Text timeText;
+    public float roundTime = 15;
+
 
     private void Awake()
     {
@@ -43,7 +48,13 @@ public class GameManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        float remainingTime = roundTime - Time.time;
 
+        int minutes = (int) remainingTime / 60;
+        int seconds = (int) remainingTime % 60;
+
+
+        timeText.text = minutes + ":" + seconds;
     }
 
     //Behavior I want:

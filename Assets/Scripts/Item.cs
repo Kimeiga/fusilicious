@@ -13,6 +13,7 @@ public class Item : MonoBehaviour
     //this isn't really that important anymore, but maybe it will help with making the UI specilized or something;
     //can't hurt
     public ItemType type;
+    public string itemName;
 
     //is the item in player's hands?
     public bool active = false;
