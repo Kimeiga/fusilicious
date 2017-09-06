@@ -206,10 +206,12 @@
     <Compile Include="Assets\Scripts\Inventory2.cs" />
     <Compile Include="Assets\Scripts\Item.cs" />
     <Compile Include="Assets\Scripts\LetterSpacing.cs" />
+    <Compile Include="Assets\Scripts\MakeRadarObject.cs" />
     <Compile Include="Assets\Scripts\MinimalistShooterGun.cs" />
     <Compile Include="Assets\Scripts\MouseRotate.cs" />
     <Compile Include="Assets\Scripts\ObservedList.cs" />
     <Compile Include="Assets\Scripts\Player.cs" />
+    <Compile Include="Assets\Scripts\Radar.cs" />
     <Compile Include="Assets\Scripts\Selfdestruct.cs" />
     <Compile Include="Assets\Scripts\Sway.cs" />
     <Compile Include="Assets\Scripts\VaneScript.cs" />

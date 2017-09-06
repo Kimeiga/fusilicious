@@ -10,9 +10,14 @@ public class Player : MonoBehaviour, IComparable<Player> {
     public string playerName;
     public Color color;
     private float health;
-    public float maxHealth = 100;
+    public float startingHealth = 100;
+
+    private float armor;
+    public float startingArmor = 0;
+
 
     public Text healthText;
+    public Text armorText;
 
     public float Health
     {
@@ -29,9 +34,25 @@ public class Player : MonoBehaviour, IComparable<Player> {
         }
     }
 
+    public float Armor
+    {
+        get
+        {
+            return armor;
+        }
+
+        set
+        {
+            armor = value;
+
+            armorText.text = value.ToString() + "×";
+        }
+    }
+
     // Use this for initialization
     void Start () {
-        Health = maxHealth;
+        Health = startingHealth;
+        Armor = startingArmor;
 	}
 	
 	// Update is called once per frame
