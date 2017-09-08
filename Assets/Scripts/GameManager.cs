@@ -51,8 +51,8 @@ public class GameManager : MonoBehaviour
     {
         float remainingTime = roundTime - Time.time;
 
-        minutesText.text = ((int) remainingTime / 60).ToString();
-        secondsText.text = ((int) remainingTime % 60).ToString();
+        minutesText.text = ((int) remainingTime / 60).ToString("00");
+        secondsText.text = ((int) remainingTime % 60).ToString("00");
         
 
     }

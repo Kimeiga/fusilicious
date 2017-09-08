@@ -1,37 +1,13 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.UI;
 
 public class FPMovement3 : MonoBehaviour {
-
-    public bool contacting = false;
-
-    public float driftTurnTime = 0;
-    public float driftTurnTimeMax = 3;
-    public bool driftTurning = false;
-
-    public bool gliding = false;
-    public float glideSpeed;
-    public bool driftBonusActive = false;
-    public float driftKeyDownTime;
-    public float driftTimeThresh;
-    public float driftBonus = 0.02f;
-    public float driftCap = 1.5f;
-    public float driftDecay = 0.01f;
-    public float driftRadius = 2;
-    public float tuckMod = 1.8f;
-    public float carveMod = 0.8f;
-
-
-    public MouseRotate bodyMouseRotate;
-    public MouseRotate fireMouseRotate;
-    Quaternion originalRotation;
-
     
-
 	[Header("Base Variables")]
 	public CharacterController characterController;
-	private bool canMove = true;
+	public bool canMove = true;
 
 	[Space(10)]
 
@@ -40,7 +16,7 @@ public class FPMovement3 : MonoBehaviour {
 	public float walkSpeed = 4;
 	public float crouchSpeed = 3;
 	public float speed;
-	public bool jumpedFromStand = false;
+	private bool jumpedFromStand = false;
 
 	[Space(10)]
 
@@ -62,7 +38,7 @@ public class FPMovement3 : MonoBehaviour {
 
     [Header("Jumping Variables")]
 
-	public float jumpSpeed = 8;
+	public float jumpSpeed = 6;
 	private bool falling = false;
 	
 	
@@ -118,7 +94,12 @@ public class FPMovement3 : MonoBehaviour {
 	private float stepOffsetInitial;
 	private bool onSlope;
 
-	private bool dontBounce = false;
+
+
+    bool contacting = false;
+
+
+    private bool dontBounce = false;
 	private bool dontBounceAssist = false;
 
 
@@ -128,6 +109,41 @@ public class FPMovement3 : MonoBehaviour {
 	public Vector3 measuredDisplacement;
 	public float measuredSpeed;
 	private Vector3 lastPosition;
+
+    
+
+
+
+    [Space(10)]
+    [Header("Drifting")]
+    public float driftTurnTimeMax = 3;
+    float driftTurnTime = 0;
+    bool driftTurning = false;
+
+    bool drifting = false;
+    public float driftSpeed;
+    float driftKeyDownTime;
+    public float driftTimeThresh = 0.5f;
+    public float driftBonus = 0.05f;
+    public float driftCap = 2;
+    public float driftDecay = 0.005f;
+    public float driftRadius = 10;
+    public float tuckMod = 1.8f;
+    public float carveMod = 0.8f;
+
+
+
+    public MouseRotate bodyMouseRotate;
+    public MouseRotate fireMouseRotate;
+    Quaternion originalRotation;
+
+
+    public Text driftText;
+    public GameObject driftDirImage;
+     Vector3 startingDriftDirection;
+    public Transform fireTrans;
+
+
 
 
 	// Use this for initialization
@@ -151,16 +167,17 @@ public class FPMovement3 : MonoBehaviour {
 		
 
 		meshTransformOriginalScale = meshTransform.localScale;
+        
 
 	}
 
     void Update()
     {
 
-        if (Input.GetButtonDown("Glide")) {
-            if (gliding == false) {
+        if (Input.GetButtonDown("Drift")) {
+            if (drifting == false) {
 
-                gliding = true;
+                drifting = true;
 
                 //bodyMouseRotate.canRotate = false;
                 bodyMouseRotate.enabled = false;
@@ -170,14 +187,16 @@ public class FPMovement3 : MonoBehaviour {
 
                 originalRotation = transform.localRotation;
 
-                glideSpeed = speed;
+                driftSpeed = speed;
 
                 wishDir = new Vector3(0, 0, 1);
+
+                driftDirImage.SetActive(true);
 
             }
             else {
 
-                gliding = false;
+                drifting = false;
                 //bodyMouseRotate.canRotate = true;
                 bodyMouseRotate.enabled = true;
                 bodyMouseRotate.originalRotation = transform.localRotation;
@@ -186,11 +205,15 @@ public class FPMovement3 : MonoBehaviour {
                 fireMouseRotate.axes = MouseRotate.RotationAxes.MouseY;
                 fireMouseRotate.rotationX = 0;
                 fireMouseRotate.turnOffset = 0;
+
+                driftText.text = "";
+                driftDirImage.transform.localRotation = Quaternion.identity;
+                driftDirImage.SetActive(false);
             }
 
         }
 
-        if (gliding)
+        if (drifting)
         {
             if (Input.GetButtonDown("Left"))
             {
@@ -448,7 +471,7 @@ public class FPMovement3 : MonoBehaviour {
 
             slideDirectionMod = Mathf.Lerp(slideDirectionMod, 1, 0.1f);
 
-            if (!gliding)
+            if (!drifting)
             {
                 //get wish direction of movement from inputs
                 wishDir = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
@@ -480,26 +503,28 @@ public class FPMovement3 : MonoBehaviour {
 
                 if (driftTurning && Time.time > driftKeyDownTime + driftTimeThresh)
                 {
-                    glideSpeed += (driftBonus * Mathf.Abs(Input.GetAxis("Horizontal")) / driftRadiusMod) * driftTurnTime;
+                    driftSpeed += (driftBonus * Mathf.Abs(Input.GetAxis("Horizontal")) / driftRadiusMod) * driftTurnTime;
                 }
                 
-                    glideSpeed -= driftDecay;
+                    driftSpeed -= driftDecay;
                 
 
 
 
 
-                glideSpeed = Mathf.Clamp(glideSpeed, runSpeed, driftCap * runSpeed);
+                driftSpeed = Mathf.Clamp(driftSpeed, runSpeed, driftCap * runSpeed);
 
-                float turnMax = glideSpeed / (driftRadius * driftRadiusMod);
+                float turnMax = driftSpeed / (driftRadius * driftRadiusMod);
 
 
                 float turn = Input.GetAxis("Horizontal") * turnMax;
 
                 float turnDeg = turn;
+                
 
-                print(glideSpeed);
-
+                driftText.text = driftSpeed.ToString("F2");
+                Vector3 temp2 = Quaternion.LookRotation(wishDir).eulerAngles;
+                driftDirImage.transform.localRotation = Quaternion.Euler(0,0,(-temp2.y) + fireTrans.localRotation.eulerAngles.y);
 
 
                 wishDir = Quaternion.AngleAxis(turnDeg, Vector3.up) * wishDir;
@@ -515,8 +540,8 @@ public class FPMovement3 : MonoBehaviour {
 
 
 
-                moveDir.x = wishDir.x * glideSpeed;
-                moveDir.z = wishDir.z * glideSpeed;
+                moveDir.x = wishDir.x * driftSpeed;
+                moveDir.z = wishDir.z * driftSpeed;
 
             }
 
@@ -665,9 +690,9 @@ public class FPMovement3 : MonoBehaviour {
 
 
 
-        if (gliding && (characterController.collisionFlags & CollisionFlags.Sides) != 0 && hit.gameObject.tag == "Level")
+        if (drifting && (characterController.collisionFlags & CollisionFlags.Sides) != 0 && hit.gameObject.tag == "Level")
         {
-            glideSpeed = runSpeed;
+            driftSpeed = runSpeed;
         }
 
         contacting = true;

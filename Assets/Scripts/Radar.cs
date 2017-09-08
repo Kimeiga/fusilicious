@@ -101,7 +101,6 @@ public class Radar : MonoBehaviour {
             localPos.x = Mathf.Clamp(localPos.x, innerRect.xMin, innerRect.xMax);
             localPos.y = Mathf.Clamp(localPos.y, innerRect.yMin, innerRect.yMax);
 
-            print(Vector3.Distance(playerPos2D, roOwnerPos2D));
 
             ro.icon.transform.position = localPos + this.transform.position;
         }

@@ -186,7 +186,6 @@ public class Gun : MonoBehaviour
 						    float bulletScaleMod = hit.distance * scaleMod;
 						    bulletScaleMod = Mathf.Clamp(bulletScaleMod, minScaleMod, maxScaleMod);
 
-                            print(bulletScaleMod);
 
                             bulScript.bulletActual.transform.localScale *= bulletScaleMod;
 

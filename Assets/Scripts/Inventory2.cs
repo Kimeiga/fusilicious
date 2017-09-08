@@ -23,9 +23,9 @@ public class Inventory2 : MonoBehaviour
 
     [Header("Grab Timing")]
 
-    //public float grabTime = 0.3f;
-    private float grabTime = 1;
+
     public float grabTimeMod = 0.3f;
+    private float grabTime = 1;
     public float grabTimeLower = 0.4f;
     public float grabTimeUpper = 0.7f;
 
@@ -91,8 +91,8 @@ public class Inventory2 : MonoBehaviour
 
     public int maxInventorySize = 8;
 
-    public int inventoryInd = 1;
-    public int startingInventoryIndex = 1;
+    public int inventoryInd = 0;
+    public int startingInventoryIndex = 0;
 
 	public int inventoryIndex
 	{
@@ -114,6 +114,7 @@ public class Inventory2 : MonoBehaviour
     public float dropTime = 0.3f;
     public float dropForce = 0.5f;
 	public float throwForce = 3;
+    public float dropMod = 10;
 
     [Space(10)]
     [Header("UI")]
@@ -182,6 +183,7 @@ public class Inventory2 : MonoBehaviour
         }
 
         slotTexts[inventoryIndex].color = Color.white;
+        slotTexts[inventoryIndex].fontStyle = FontStyle.Bold;
 
         selectorPanelTrans = selectorPanel.GetComponent<RectTransform>();
         selectorPanelImage = selectorPanel.transform.GetChild(0).GetComponent<Image>();
@@ -652,7 +654,7 @@ public class Inventory2 : MonoBehaviour
         //so i'm going to make a new vector and add it in the addforce clause
         //but i'm going to need a class that does this for me because i'm going to reference player displacement in gun script too hahahahahaha
 
-        Vector3 playerMovementMod = fpmScript.measuredDisplacement * 100;
+        Vector3 playerMovementMod = fpmScript.measuredDisplacement * dropMod;
 
 
         //throw the fucker
@@ -847,6 +849,8 @@ public class Inventory2 : MonoBehaviour
 
             slotTexts[nextSlot].color = Color.white;
             slotTexts[inventoryIndex].color = Color.black;
+            slotTexts[nextSlot].fontStyle = FontStyle.Bold;
+            slotTexts[inventoryIndex].fontStyle = FontStyle.Normal;
 
             inventoryIndex = nextSlot;
             stateChange = false;
@@ -988,12 +992,14 @@ public class Inventory2 : MonoBehaviour
         selectorPanelImage.color = Color.clear;
 
         slotTexts[inventoryIndex].color = Color.black;
+        slotTexts[inventoryIndex].fontStyle = FontStyle.Normal;
 
 
         //yeah we are done with the first phase dawg
         yield return new WaitForSeconds(grabTime);
 
         slotTexts[nextSlot].color = Color.white;
+        slotTexts[nextSlot].fontStyle = FontStyle.Bold;
 
         selectorPanelImage.color = selectorPanelColor;
 
