@@ -16,8 +16,8 @@ public class Player : MonoBehaviour, IComparable<Player> {
     public float startingArmor = 0;
 
 
-    public Text healthText;
-    public Text armorText;
+    //public Text healthText;
+    //public Text armorText;
 
     public float Health
     {
@@ -30,7 +30,7 @@ public class Player : MonoBehaviour, IComparable<Player> {
         {
             health = value;
 
-            healthText.text = value.ToString() + "+";
+            //healthText.text = value.ToString() + "+";
         }
     }
 
@@ -45,7 +45,7 @@ public class Player : MonoBehaviour, IComparable<Player> {
         {
             armor = value;
 
-            armorText.text = value.ToString() + "×";
+            //armorText.text = value.ToString() + "×";
         }
     }
 

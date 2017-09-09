@@ -137,10 +137,11 @@ public class FPMovement3 : MonoBehaviour {
     public MouseRotate fireMouseRotate;
     Quaternion originalRotation;
 
-
+    /*
     public Text driftText;
     public GameObject driftDirImage;
-     Vector3 startingDriftDirection;
+    Vector3 startingDriftDirection;
+    */
     public Transform fireTrans;
 
 
@@ -178,8 +179,7 @@ public class FPMovement3 : MonoBehaviour {
             if (drifting == false) {
 
                 drifting = true;
-
-                //bodyMouseRotate.canRotate = false;
+                
                 bodyMouseRotate.enabled = false;
 
                 fireMouseRotate.axes = MouseRotate.RotationAxes.MouseXAndY;
@@ -191,13 +191,12 @@ public class FPMovement3 : MonoBehaviour {
 
                 wishDir = new Vector3(0, 0, 1);
 
-                driftDirImage.SetActive(true);
+                //driftDirImage.SetActive(true);
 
             }
             else {
 
                 drifting = false;
-                //bodyMouseRotate.canRotate = true;
                 bodyMouseRotate.enabled = true;
                 bodyMouseRotate.originalRotation = transform.localRotation;
                 bodyMouseRotate.rotationX = fireMouseRotate.rotationX + fireMouseRotate.turnOffset;
@@ -206,9 +205,11 @@ public class FPMovement3 : MonoBehaviour {
                 fireMouseRotate.rotationX = 0;
                 fireMouseRotate.turnOffset = 0;
 
+                /*
                 driftText.text = "";
                 driftDirImage.transform.localRotation = Quaternion.identity;
                 driftDirImage.SetActive(false);
+                */
             }
 
         }
@@ -263,7 +264,7 @@ public class FPMovement3 : MonoBehaviour {
 
         if(jumpButtonUp && !grounded)
         {
-            print("wft");
+            //print("wft");
         }
 	}
 
@@ -521,11 +522,11 @@ public class FPMovement3 : MonoBehaviour {
 
                 float turnDeg = turn;
                 
-
+                /*
                 driftText.text = driftSpeed.ToString("F2");
                 Vector3 temp2 = Quaternion.LookRotation(wishDir).eulerAngles;
                 driftDirImage.transform.localRotation = Quaternion.Euler(0,0,(-temp2.y) + fireTrans.localRotation.eulerAngles.y);
-
+                */
 
                 wishDir = Quaternion.AngleAxis(turnDeg, Vector3.up) * wishDir;
 

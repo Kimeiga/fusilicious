@@ -32,7 +32,7 @@ public class Gun : MonoBehaviour
             if (inventoryScript)
             {
 
-                inventoryScript.ammoText.text = ammo.ToString();
+                //inventoryScript.ammoText.text = ammo.ToString();
             }
         }
     }

@@ -116,6 +116,7 @@ public class Inventory2 : MonoBehaviour
 	public float throwForce = 3;
     public float dropMod = 10;
 
+    /*
     [Space(10)]
     [Header("UI")]
 
@@ -129,7 +130,7 @@ public class Inventory2 : MonoBehaviour
     private RectTransform selectorPanelTrans;
     private Image selectorPanelImage;
     private Color selectorPanelColor;
-
+    */
 
     // Use this for initialization
     void Start()
@@ -139,7 +140,7 @@ public class Inventory2 : MonoBehaviour
         bodyTransformScript = transform.GetComponent<MouseRotate>();
 
         //set ammopanel for ammo updating
-        ammoPanel = ammoText.transform.parent.gameObject;
+        //ammoPanel = ammoText.transform.parent.gameObject;
 
         //set fpmscript for enhanced drop mechanic
         fpmScript = GetComponent<FPMovement3>();
@@ -168,7 +169,7 @@ public class Inventory2 : MonoBehaviour
         //get player collider
         playerCollider = GetComponent<Collider>();
 
-
+        /*
         for (int i = 0; i < inventory.Length; i++)
         {
             if (inventory[i])
@@ -188,6 +189,8 @@ public class Inventory2 : MonoBehaviour
         selectorPanelTrans = selectorPanel.GetComponent<RectTransform>();
         selectorPanelImage = selectorPanel.transform.GetChild(0).GetComponent<Image>();
         selectorPanelColor = selectorPanelImage.color;
+        */
+
 
         DOTween.Init();
     }
@@ -477,14 +480,14 @@ public class Inventory2 : MonoBehaviour
         //put it in the inventory
         inventory[inventoryIndex] = nextItem;
 
-        slotTexts[inventoryIndex].text = nextItemScript.itemName + "  " + (inventoryIndex + 1).ToString();
+        //slotTexts[inventoryIndex].text = nextItemScript.itemName + "  " + (inventoryIndex + 1).ToString();
 
 
         if (nextItemScript.type == ItemType.Gun)
         {
-            ammoPanel.SetActive(true);
+            //ammoPanel.SetActive(true);
             Gun gunScript = nextItem.GetComponent<Gun>();
-            ammoText.text = gunScript.Ammo.ToString();
+            //ammoText.text = gunScript.Ammo.ToString();
             gunScript.inventoryScript = gameObject.GetComponent<Inventory2>();
 
             fireTransformScript.ResetOffsets();
@@ -644,9 +647,9 @@ public class Inventory2 : MonoBehaviour
         prevItemScript.active = false;
 
         
-        ammoPanel.SetActive(false);
+        //ammoPanel.SetActive(false);
 
-        slotTexts[inventoryIndex].text = (inventoryIndex + 1).ToString();
+        //slotTexts[inventoryIndex].text = (inventoryIndex + 1).ToString();
 
 
         //I want to compound the force with the player's own movement so it can fly farther when you run and jump and shit you know.
@@ -784,8 +787,8 @@ public class Inventory2 : MonoBehaviour
         //put it on the new inventory slot
         inventory[slotToHolsterTo] = prevItem;
 
-        slotTexts[inventoryIndex].text = (inventoryIndex + 1).ToString();
-        slotTexts[slotToHolsterTo].text = prevItemScript.itemName + "  " + (slotToHolsterTo + 1).ToString();
+        //slotTexts[inventoryIndex].text = (inventoryIndex + 1).ToString();
+        //slotTexts[slotToHolsterTo].text = prevItemScript.itemName + "  " + (slotToHolsterTo + 1).ToString();
 
 
         //unactivate item
@@ -801,7 +804,7 @@ public class Inventory2 : MonoBehaviour
         prevItem.transform.DOLocalRotateQuaternion(Quaternion.identity, grabTime).SetEase(Ease.OutExpo);
 
         
-            ammoPanel.SetActive(false);
+            //ammoPanel.SetActive(false);
         
 
         StartCoroutine(GrabItem(nextItem, !useRightHand, true));
@@ -843,6 +846,7 @@ public class Inventory2 : MonoBehaviour
         //if you are just going from hands to hands, you literally just need to change the current inventory index and get the fuck out of here
         if (fromHands && toHands){
 
+            /*
             Vector2 temp = selectorPanelTrans.anchoredPosition;
             temp.y = 13 + 28 * nextSlot;
             selectorPanelTrans.anchoredPosition = temp;
@@ -851,6 +855,7 @@ public class Inventory2 : MonoBehaviour
             slotTexts[inventoryIndex].color = Color.black;
             slotTexts[nextSlot].fontStyle = FontStyle.Bold;
             slotTexts[inventoryIndex].fontStyle = FontStyle.Normal;
+            */
 
             inventoryIndex = nextSlot;
             stateChange = false;
@@ -987,17 +992,19 @@ public class Inventory2 : MonoBehaviour
 
         }
 
+        /*
         ammoPanel.SetActive(false);
 
         selectorPanelImage.color = Color.clear;
 
         slotTexts[inventoryIndex].color = Color.black;
         slotTexts[inventoryIndex].fontStyle = FontStyle.Normal;
-
+        */
 
         //yeah we are done with the first phase dawg
         yield return new WaitForSeconds(grabTime);
 
+        /*
         slotTexts[nextSlot].color = Color.white;
         slotTexts[nextSlot].fontStyle = FontStyle.Bold;
 
@@ -1007,14 +1014,14 @@ public class Inventory2 : MonoBehaviour
         Vector2 temp1 = selectorPanelTrans.anchoredPosition;
         temp1.y = 13 + 28 * nextSlot;
         selectorPanelTrans.anchoredPosition = temp1;
-
+        */
 
 
         if (nextItem != null && nextItemScript.type == ItemType.Gun)
         {
-            ammoPanel.SetActive(true);
+            //ammoPanel.SetActive(true);
             Gun gunScript = nextItem.GetComponent<Gun>();
-            ammoText.text = gunScript.Ammo.ToString();
+            //ammoText.text = gunScript.Ammo.ToString();
             gunScript.inventoryScript = gameObject.GetComponent<Inventory2>();
             gunScript.currentRecoil = 0;
             gunScript.xRecoilOffset = 0;

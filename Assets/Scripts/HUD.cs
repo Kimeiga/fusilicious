@@ -5,6 +5,9 @@ using UnityEngine.UI;
 
 public class HUD : MonoBehaviour {
 
+    public static HUD hud;
+
+
     public Text ammoText;
     public Text[] slotTexts;
     public GameObject slotSelector;
@@ -18,8 +21,18 @@ public class HUD : MonoBehaviour {
     public Radar radar;
     public Transform lookTrans;
 
-	// Use this for initialization
-	void Start () {
+    private void Awake()
+    {
+        if (hud == null)
+            hud = this;
+        else if(hud != this)
+        {
+            Destroy(gameObject);
+        }
+    }
+
+    // Use this for initialization
+    void Start () {
 		
 	}
 	
