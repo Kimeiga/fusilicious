@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 using UnityEngine.UI;
+using UnityEngine.Networking;
 
 
-public class Player : MonoBehaviour, IComparable<Player> {
+public class Player : NetworkBehaviour, IComparable<Player> {
 
     public string playerName;
     public Color color;
@@ -14,6 +15,12 @@ public class Player : MonoBehaviour, IComparable<Player> {
 
     private float armor;
     public float startingArmor = 0;
+
+    public GameObject playerCamera;
+    public FPMovement3 fpmScript;
+    public MouseRotate bodyRotate;
+    public MouseRotate fireRotate;
+    
 
 
     //public Text healthText;
@@ -51,6 +58,14 @@ public class Player : MonoBehaviour, IComparable<Player> {
 
     // Use this for initialization
     void Start () {
+        if (isLocalPlayer)
+        {
+            //fpmScript.enabled = true;
+            playerCamera.SetActive(true);
+            bodyRotate.enabled = true;
+            fireRotate.enabled = true;
+        }
+
         Health = startingHealth;
         Armor = startingArmor;
 	}

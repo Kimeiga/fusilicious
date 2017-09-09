@@ -2,8 +2,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.UI;
+using UnityEngine.Networking;
 
-public class FPMovement3 : MonoBehaviour {
+public class FPMovement3 : NetworkBehaviour {
     
 	[Header("Base Variables")]
 	public CharacterController characterController;
@@ -69,6 +70,7 @@ public class FPMovement3 : MonoBehaviour {
 	private float crouchingSpeedMod = 1;
 	private float targetHeight;
 
+    public float heightActual;
 
 	[Space(10)]
 
@@ -150,6 +152,10 @@ public class FPMovement3 : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 
+        if (!isLocalPlayer)
+        {
+            return;
+        }
 
         //initialize last position
         lastPosition = Vector3.zero;
@@ -174,6 +180,11 @@ public class FPMovement3 : MonoBehaviour {
 
     void Update()
     {
+
+        if (!isLocalPlayer)
+        {
+            return;
+        }
 
         if (Input.GetButtonDown("Drift")) {
             if (drifting == false) {
@@ -269,6 +280,11 @@ public class FPMovement3 : MonoBehaviour {
 	}
 
 	void FixedUpdate() {
+
+        if (!isLocalPlayer)
+        {
+            return;
+        }
 
         contacting = false;
 
@@ -407,8 +423,9 @@ public class FPMovement3 : MonoBehaviour {
 
             if (Mathf.Abs(characterController.height - targetHeight) > 0.0001f)
             {
+                heightActual = Mathf.Lerp(characterController.height, targetHeight, crouchingSpeed * crouchingSpeedMod);
 
-                characterController.height = Mathf.Lerp(characterController.height, targetHeight, crouchingSpeed * crouchingSpeedMod);
+                characterController.height = heightActual;
             }
 
 
@@ -678,7 +695,12 @@ public class FPMovement3 : MonoBehaviour {
 	
 	void OnControllerColliderHit(ControllerColliderHit hit)
 	{
-		contactPoint = hit.point;
+        if (!isLocalPlayer)
+        {
+            return;
+        }
+
+        contactPoint = hit.point;
 		if (onSlope && wishDir.magnitude > 0.05f)
 		{
 			dontBounce = true;
@@ -702,8 +724,13 @@ public class FPMovement3 : MonoBehaviour {
 
 	void OnTriggerStay(Collider other)
 	{
+        if (!isLocalPlayer)
+        {
+            return;
+        }
 
-		if (other.gameObject.tag == "Level")
+
+        if (other.gameObject.tag == "Level")
 		{
 
             if (!grounded && canMove && Input.GetButton("Wall Hang")){
