@@ -172,7 +172,6 @@
     <None Include="Assets\SabreCSG\Shaders\Tri-Planar.shader" />
     <None Include="Assets\SabreCSG\Shaders\UINoAlpha.shader" />
     <None Include="Assets\SabreCSG\Shaders\VertexTinted.shader" />
-    <None Include="Assets\Shaders\FrostedGlass.shader" />
     <None Include="Assets\Standard Assets\Characters\FirstPersonCharacter\FirstPersonCharacterGuidelines.txt" />
     <None Include="Assets\Standard Assets\Characters\RollerBall\RollerBallGuidelines.txt" />
     <None Include="Assets\Standard Assets\Characters\ThirdPersonCharacter\ThirdPersonCharacterGuidelines.txt" />

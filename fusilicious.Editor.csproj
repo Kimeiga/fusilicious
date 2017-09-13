@@ -144,13 +144,13 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="fusilicious.Plugins.csproj">
-      <Project>{02CB252D-01BF-9542-653A-A82A312F8F80}</Project>
-      <Name>fusilicious.Plugins</Name>
-    </ProjectReference>
     <ProjectReference Include="fusilicious.csproj">
       <Project>{A3410154-BDB8-DA4E-20D5-BC18E2EC7AAA}</Project>
       <Name>fusilicious</Name>
+    </ProjectReference>
+    <ProjectReference Include="fusilicious.Plugins.csproj">
+      <Project>{02CB252D-01BF-9542-653A-A82A312F8F80}</Project>
+      <Name>fusilicious.Plugins</Name>
     </ProjectReference>
     <ProjectReference Include="fusilicious.Editor.Plugins.csproj">
       <Project>{3AFDF1DD-5616-246F-7159-845594F4E285}</Project>
@@ -191,7 +191,6 @@
     <None Include="Assets\SabreCSG\Shaders\Tri-Planar.shader" />
     <None Include="Assets\SabreCSG\Shaders\UINoAlpha.shader" />
     <None Include="Assets\SabreCSG\Shaders\VertexTinted.shader" />
-    <None Include="Assets\Shaders\FrostedGlass.shader" />
     <None Include="Assets\Standard Assets\Characters\FirstPersonCharacter\FirstPersonCharacterGuidelines.txt" />
     <None Include="Assets\Standard Assets\Characters\RollerBall\RollerBallGuidelines.txt" />
     <None Include="Assets\Standard Assets\Characters\ThirdPersonCharacter\ThirdPersonCharacterGuidelines.txt" />

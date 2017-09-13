@@ -5,7 +5,9 @@ using UnityEngine.UI;
 using UnityEngine.Networking;
 
 public class FPMovement3 : NetworkBehaviour {
-    
+
+    public Renderer head;
+
 	[Header("Base Variables")]
 	public CharacterController characterController;
 	public bool canMove = true;
@@ -71,6 +73,9 @@ public class FPMovement3 : NetworkBehaviour {
 	private float targetHeight;
 
     public float heightActual;
+
+    [SyncVar]
+    private float previousHeight;
 
 	[Space(10)]
 
@@ -152,10 +157,6 @@ public class FPMovement3 : NetworkBehaviour {
 	// Use this for initialization
 	void Start () {
 
-        if (!isLocalPlayer)
-        {
-            return;
-        }
 
         //initialize last position
         lastPosition = Vector3.zero;
@@ -354,7 +355,7 @@ public class FPMovement3 : NetworkBehaviour {
 
 
             //record the previous height to scale the mesh, move the head, and change the y value of the transform
-            float previousHeight = characterController.height;
+            previousHeight = characterController.height;
 
             //set the target height for the crouch command
             if (Input.GetButton("Crouch"))
@@ -416,9 +417,6 @@ public class FPMovement3 : NetworkBehaviour {
             }
 
 
-
-
-
             //Lerp the controller height to the target height
 
             if (Mathf.Abs(characterController.height - targetHeight) > 0.0001f)
@@ -474,11 +472,17 @@ public class FPMovement3 : NetworkBehaviour {
                 meshTransform.localScale = temp;
             }
 
+            if (isClient)
+            {
 
+                CmdCrouch(heightActual, changeInHeightHalfed);
+            }
+            if (isServer)
+            {
+                RpcCrouch(heightActual, changeInHeightHalfed);
+            }
 
-
-
-
+            CmdRed();
 
 
 
@@ -742,6 +746,75 @@ public class FPMovement3 : NetworkBehaviour {
         }
 	}
 
+    
 
+    [Command]
+    void CmdCrouch(float height, float heightHalf)
+    {
+        RpcCrouch(height, heightHalf);
+    }
+
+    [ClientRpc]
+    void RpcCrouch(float height,float heightHalf)
+    {
+        if (isLocalPlayer)
+        {
+            return;
+        }
+
+        characterController.height = height;
+
+        Vector3 temp = transform.position;
+        if (grounded)
+        {
+            temp.y += heightHalf;
+        }
+        else
+        {
+            temp.y -= heightHalf;
+        }
+        if (!float.IsNaN(temp.y))
+        {
+            transform.position = temp;
+        }
+
+
+
+        //Change position of each "head object" with change in controller height such that it stays by the "head"
+        foreach (Transform t in headObjects)
+        {
+            temp = t.position;
+            temp.y += heightHalf;
+            t.position = temp;
+        }
+
+        //Change position of each "foot object" with change in controller height such that it stays by the "foot"
+        foreach (Transform t in footObjects)
+        {
+            temp = t.position;
+            temp.y -= heightHalf;
+            t.position = temp;
+        }
+
+
+        //Change scale of character mesh with change in controller height
+        temp = new Vector3(meshTransformOriginalScale.x, meshTransformOriginalScale.y * characterController.height / standHeight, meshTransformOriginalScale.z);
+        if (!float.IsNaN(meshTransformOriginalScale.y * characterController.height / standHeight))
+        {
+            meshTransform.localScale = temp;
+        }
+    }
+
+    [Command]
+    void CmdRed()
+    {
+        RpcRed();
+    }
+
+    [ClientRpc]
+    void RpcRed()
+    {
+        head.material.color = Color.red;
+    }
 
 }
